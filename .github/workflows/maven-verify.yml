@@ -3,9 +3,9 @@ name: Maven Verify
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   schedule:
     - cron: '4 2 * * 0' # once a week, Sundays at 02:04 UTC.
   workflow_dispatch: # manual trigger
@@ -24,7 +24,3 @@ jobs:
         distribution: 'adopt'
     - name: Maven Verify
       run: mvn -B -U clean verify
-    #- name: Initialize CodeQL
-    #  uses: github/codeql-action/init@v1
-    #- name: Perform CodeQL Analysis
-    #  uses: github/codeql-action/analyze@v1
