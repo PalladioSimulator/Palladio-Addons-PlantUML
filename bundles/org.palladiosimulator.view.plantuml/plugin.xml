@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="net.sourceforge.plantuml.eclipse.diagramIntentProvider">
+
+      <diagramIntentProvider
+	    id="org.palladiosimulator.view.plantuml.EcoreDiagramIntentProvider"
+	    providerClass="org.palladiosimulator.view.plantuml.PcmDiagramIntentProvider"
+      	label="Class and object diagrams generated from ecore models and instances"
+	    >
+      </diagramIntentProvider>
+   </extension>
+
+</plugin>

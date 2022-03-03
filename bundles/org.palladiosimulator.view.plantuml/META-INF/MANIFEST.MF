@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ecore PlantUML mapping
+Bundle-SymbolicName: org.palladiosimulator.view.plantuml;singleton:=true
+Bundle-Version: 1.1.27.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: org.palladiosimulator.view.plantuml
+Import-Package: net.sourceforge.plantuml.eclipse,
+ net.sourceforge.plantuml.eclipse.utils,
+ net.sourceforge.plantuml.ecore,
+ net.sourceforge.plantuml.text,
+ net.sourceforge.plantuml.util,
+ org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.eclipse.emf.common.util,
+ org.eclipse.emf.ecore,
+ org.eclipse.emf.ecore.resource,
+ org.eclipse.emf.ecore.resource.impl,
+ org.eclipse.emf.ecore.util,
+ org.eclipse.emf.edit.domain,
+ org.eclipse.jface.viewers,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.palladiosimulator.pcm
+Bundle-ClassPath: .
+Require-Bundle: org.palladiosimulator.pcm
+Automatic-Module-Name: org.palladiosimulator.view.plantuml

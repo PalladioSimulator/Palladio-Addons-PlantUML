@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.palladiosimulator.view.plantuml.feature"
+      label="SoMoX Rule Engine Feature"
+      version="5.1.0.qualifier"
+      plugin="org.palladiosimulator.branding"
+      license-feature="org.palladiosimulator.license"
+      license-feature-version="1.0.0">
+
+   <license url="">
+
+   </license>
+
+   <requires>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.xtend.lib"/>
+      <import plugin="org.apache.log4j"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.eclipse.equinox.app"/>
+      <import plugin="org.eclipse.swt"/>
+      <import plugin="org.palladiosimulator.commons"/>
+   </requires>
+
+      <plugin id="org.palladiosimulator.view.plantuml"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

@@ -1,11 +1,57 @@
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
+# General
+.DS_Store
+.polyglot.build.properties
+*.log
+*.META-INF_MANIFEST.MF
+*.polyglot.*
+*.rej
+*.takari_issue_192
+*.tycho
+*~
+heapdump.*
+Snap.*
+
+# Package Files
+*.ear
+*.nar
+*.rar
+*.tar.gz
+*.war
+*.zip
+
+# Eclipse
+.loadpath
+.metadata
+.recommenders
+.settings/
+.worksheet
+*.bak
+*.class
+*.swp
+*.tmp
+*~.nib
+bin/
+javacore.*
+local.properties
+tmp/
+
+# Maven
 .mvn/timing.properties
-# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+buildNumber.properties
+dependency-reduced-pom.xml
+pom.xml.next
+pom.xml.releaseBackup
+pom.xml.tag
+pom.xml.versionsBackup
+release.properties
+releng/*/workspace/*
+target/
 .mvn/wrapper/maven-wrapper.jar
+
+# Xtend
+*._trace
+*.xtendbin
+xtend-gen/
+
+# JDT
+*.jdt
