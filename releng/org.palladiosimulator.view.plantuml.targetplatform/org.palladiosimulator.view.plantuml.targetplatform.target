@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.8"?>
-<target name="SoMoX - SOftware MOdel eXtractor" sequenceNumber="1">
+<target name="Palladio Bench Plantuml Feature" sequenceNumber="1">
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" refresh="true">
             <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="0.0.0" />
