@@ -10,11 +10,6 @@
             <repository location="https://updatesite.palladio-simulator.com/palladio-core-commons/nightly/" />
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" refresh="true">
-            <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="0.0.0" />
-            <unit id="de.uka.ipd.sdq.identifier.feature.source.feature.group" version="0.0.0" />
-            <repository location="https://updatesite.palladio-simulator.com/palladio-core-commons/nightly/" />
-        </location>
-        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" refresh="true">
             <unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0" />
             <unit id="org.palladiosimulator.pcm.feature.source.feature.group" version="0.0.0" />
             <repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/nightly/" />
