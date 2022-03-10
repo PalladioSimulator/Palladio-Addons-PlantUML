@@ -19,7 +19,6 @@ public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 		super(source);
 	}
 
-	public static int GEN_ATTRIBUTES = 1 << 0, GEN_LINKS = 1 << 1, GEN_OBJECT_HYPERLINKS = 1 << 2;
 	private static String COMPONENT_START = "[", COMPONENT_END = "]";
 	private static String LINK_START = "[[", LINK_END = "]]";
 	private static String INTERFACE_START = "(", INTERFACE_END = ")";
@@ -39,8 +38,7 @@ public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 
 	private final List<AssemblyContext> contexts = new ArrayList<>();
 	private final List<Connector> connectors = new ArrayList<>();
-	private final List<ProvidedRole> providedRoles = new ArrayList<>(); // mehrere Rollen möglich?
-	protected final EcoreDiagramHelper diagramHelper = new EcoreDiagramHelper();
+	private final List<ProvidedRole> providedRoles = new ArrayList<>(); 
 
 	protected String getDiagramText(final System system) {
 		for (AssemblyContext context : system.getAssemblyContexts__ComposedStructure()) {
@@ -78,7 +76,6 @@ public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 			} else if (connector instanceof ProvidedDelegationConnector) {
 				appendProvidedDelConnector((ProvidedDelegationConnector) connector, buffer);
 			}
-			// andere Connectors?
 		}
 
 		// for the contexts without connectors
@@ -92,7 +89,7 @@ public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 		return buffer.toString();
 	}
 
-	// () DataAccess
+	// example: () DataAccess
 	protected void appendProvidedRole(final ProvidedRole role, final StringBuilder buffer) {
 		buffer.append(INTERFACE_START);
 		buffer.append(INTERFACE_END);
@@ -101,7 +98,7 @@ public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 		buffer.append(NEWLINE);
 	}
 
-	// component System {
+	// example: component System {
 	protected void appendComponentStart(final String name, final StringBuilder buffer) {
 		buffer.append(COMPONENT_KEYWORD);
 		buffer.append(SPACE);
@@ -111,7 +108,7 @@ public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 		buffer.append(NEWLINE);
 
 	}
-
+	// example: [FileStorage] [[link]]
 	protected void appendAssemblyContext(final AssemblyContext context, final String linkToRepository,
 			final StringBuilder buffer) {
 		buffer.append(COMPONENT_START);
@@ -124,7 +121,7 @@ public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 		buffer.append(NEWLINE);
 	}
 
-	// [Access Control] -(0- [Web Server] : REST
+	// example: [Access Control] -(0- [Web Server] : REST
 	protected void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
 		buffer.append(COMPONENT_START);
 		// requiring context
@@ -143,6 +140,7 @@ public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 		buffer.append(NEWLINE);
 	}
 
+	// example: 
 	// DataAccess - IMedia
 	// IMedia - [Access Control]
 	protected void appendProvidedDelConnector(final ProvidedDelegationConnector connector, final StringBuilder buffer) {

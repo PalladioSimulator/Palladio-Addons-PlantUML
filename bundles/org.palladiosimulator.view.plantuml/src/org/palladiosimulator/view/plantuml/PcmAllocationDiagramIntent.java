@@ -43,6 +43,7 @@ public class PcmAllocationDiagramIntent extends AbstractDiagramIntent<Allocation
 	}
 
 	private String getDiagramText(final Allocation allocation) {
+		
 		for (AllocationContext context : allocation.getAllocationContexts_Allocation()) {
 			contexts.add(context);
 			ResourceContainer container = context.getResourceContainer_AllocationContext();
@@ -87,7 +88,7 @@ public class PcmAllocationDiagramIntent extends AbstractDiagramIntent<Allocation
 		return buffer.toString();
 	}
 
-	// node System1 {
+	// example: node System1 {
 	protected void appendContainerStart(final ResourceContainer container, StringBuilder buffer) {
 		buffer.append(CONTAINER_KEYWORD);
 		buffer.append(SPACE);
@@ -97,7 +98,7 @@ public class PcmAllocationDiagramIntent extends AbstractDiagramIntent<Allocation
 		buffer.append(NEWLINE);
 	}
 
-	// [DataAccess]
+	// example: [DataAccess]
 	protected void appendAllocationContext(final AllocationContext context, StringBuilder buffer) {
 		buffer.append(COMPONENT_START);
 		buffer.append(context.getEntityName());
@@ -109,13 +110,12 @@ public class PcmAllocationDiagramIntent extends AbstractDiagramIntent<Allocation
 		buffer.append(NEWLINE);
 	}
 
-	// }
 	private void appendContainerEnd(final ResourceContainer container, StringBuilder buffer) {
 		buffer.append(CURLY_CLOSING_BRACKET);
 		buffer.append(NEWLINE);
 	}
 
-	// [Access Control] -(0- [Web Server] : REST
+	// example: [Access Control] -(0- [Web Server] : REST
 	protected void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
 		buffer.append(COMPONENT_START);
 
@@ -140,6 +140,7 @@ public class PcmAllocationDiagramIntent extends AbstractDiagramIntent<Allocation
 		buffer.append(NEWLINE);
 	}
 
+	// helper method
 	protected AllocationContext assemblyToAllocationContext(AssemblyContext assemblyContext) {
 		return contexts.stream().filter(x -> x.getAssemblyContext_AllocationContext().equals(assemblyContext))
 				.collect(Collectors.toList()).get(0);

@@ -20,7 +20,6 @@ import net.sourceforge.plantuml.text.AbstractDiagramIntent;
 
 public class PcmComponentDiagramIntent extends AbstractDiagramIntent<Repository> {
 
-	public static int GEN_ATTRIBUTES = 1 << 0, GEN_LINKS = 1 << 1, GEN_OBJECT_HYPERLINKS = 1 << 2;
 	private static String COMPONENT_START = "[", COMPONENT_END = "]";
 	private static String SIMPLE_LINK = "-", REQUIRES_LINK = "..>";
 	private static String REQUIRES_LABEL = " : requires";
@@ -87,7 +86,7 @@ public class PcmComponentDiagramIntent extends AbstractDiagramIntent<Repository>
 		}
 	}
 
-	// [First Component] ..> HTTP : requires
+	// example: [First Component] ..> HTTP : requires
 	protected void appendReqIfaces(final BasicComponent component, final StringBuilder buffer) {
 		for (RequiredRole reqRole : requiredRoles.get(component)) {
 			appendComponent(component, buffer);
@@ -98,6 +97,7 @@ public class PcmComponentDiagramIntent extends AbstractDiagramIntent<Repository>
 		}
 	}
 
+	// helper method
 	protected Interface getIFaceByRef(Role role) {
 		EList<EObject> crossRefs = role.eCrossReferences();
 		for (Interface iface : ifaces) {
