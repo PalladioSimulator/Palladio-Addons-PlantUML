@@ -13,6 +13,7 @@ Snap.*
 
 # Package Files
 *.ear
+*.jar
 *.nar
 *.rar
 *.tar.gz
@@ -37,6 +38,7 @@ tmp/
 
 # Maven
 .mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 buildNumber.properties
 dependency-reduced-pom.xml
 pom.xml.next
@@ -46,7 +48,6 @@ pom.xml.versionsBackup
 release.properties
 releng/*/workspace/*
 target/
-.mvn/wrapper/maven-wrapper.jar
 
 # Xtend
 *._trace
@@ -54,4 +55,43 @@ target/
 xtend-gen/
 
 # JDT
+.java-version
+.mtj.tmp/
+*.ctxt
 *.jdt
+hs_err_pid*
+replay_pid*
+
+# LaTeX
+.*.lb
+.pdf
+*-blx.aux
+*-blx.bib
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.brf
+*.cb
+*.cb2
+*.cls
+*.fdb_latexmk
+*.fls
+*.fmt
+*.fot
+*.lof
+*.lot
+*.nav
+*.out
+*.pdfsync
+*.pre
+*.run.xml
+*.snm
+*.synctex
+*.synctex.gz
+*.synctex.gz(busy)
+*.synctex(busy)
+*.toc
+*.vrb
+logos/banner_*
+logos/kitlogo_*
