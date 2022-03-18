@@ -1,0 +1,36 @@
+name: Dokumentation
+ 
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.tex'
+  workflow_dispatch:
+ 
+jobs:
+  latex:
+    environment: latex
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up repository
+        uses: actions/checkout@v3
+      - name: Set up template
+        run: |
+          cd docs/presentation
+          curl --header "PRIVATE-TOKEN: ${{ secrets.PRIVATE_GITLAB_TOKEN }}" https://git.scc.kit.edu/i43/dokumentvorlagen/praesentationen/beamer/-/archive/master/beamer-master.zip -o beamer-master.zip
+          unzip beamer-master.zip
+          mkdir logos
+          mv beamer-master/sdqbeamer.cls sdqbeamer.cls
+          mv beamer-master/logos/banner_2020_kit.jpg logos/banner_2020_kit.jpg
+          mv beamer-master/logos/kitlogo_de_rgb.pdf logos/kitlogo_de_rgb.pdf
+          mv beamer-master/logos/kitlogo_en_rgb.pdf logos/kitlogo_en_rgb.pdf
+      - name: Compile document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: docs/presentation/presentation.tex
+          work_in_root_file_dir: true
+      - name: Upload document
+        uses: actions/upload-artifact@v3
+        with:
+          name: presentation.pdf
+          path: docs/presentation/presentation.pdf
