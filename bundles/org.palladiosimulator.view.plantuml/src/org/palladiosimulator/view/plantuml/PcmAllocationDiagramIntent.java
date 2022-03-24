@@ -22,7 +22,6 @@ public class PcmAllocationDiagramIntent extends AbstractDiagramIntent<Allocation
 		super(source);
 	}
 
-	public static int GEN_ATTRIBUTES = 1 << 0, GEN_LINKS = 1 << 1, GEN_OBJECT_HYPERLINKS = 1 << 2;
 	private static String COMPONENT_START = "[", COMPONENT_END = "]";
 	private static String LINK_START = "[[", LINK_END = "]]";
 	private static String CURLY_OPENING_BRACKET = "{", CURLY_CLOSING_BRACKET = "}";

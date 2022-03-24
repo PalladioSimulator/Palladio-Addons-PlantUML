@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ASCII"?>
+<repository:Repository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" id="_POMuAHFwEey8ibcKDNEZqw" entityName="New Repository">
+  <components__Repository xsi:type="repository:BasicComponent" id="_wMCoEHFwEey8ibcKDNEZqw" entityName="aClass">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_KxE5MXnFEeyvxNomtE07ZQ" entityName="aRole" providedInterface__OperationProvidedRole="_q_RfBnnFEeyvxNomtE07ZQ"/>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_05FmAHFwEey8ibcKDNEZqw" entityName="bName">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_pxGt4X4GEeyW1covl4oMWg" entityName="bRole" providedInterface__OperationProvidedRole="_nQ8eRX4GEeyW1covl4oMWg"/>
+    <requiredRoles_InterfaceRequiringEntity xsi:type="repository:OperationRequiredRole" id="_L-si5XnFEeyvxNomtE07ZQ" entityName="bRole" requiredInterface__OperationRequiredRole="_q_RfBnnFEeyvxNomtE07ZQ"/>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_ssYMMH4GEeyW1covl4oMWg" entityName="xClass">
+    <requiredRoles_InterfaceRequiringEntity xsi:type="repository:OperationRequiredRole" id="_yvEudX4GEeyW1covl4oMWg" entityName="cRole" requiredInterface__OperationRequiredRole="_nQ8eRX4GEeyW1covl4oMWg"/>
+  </components__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_q_RfBnnFEeyvxNomtE07ZQ" entityName="IDownload"/>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_nQ8eRX4GEeyW1covl4oMWg" entityName="IDataAccess"/>
+</repository:Repository>
