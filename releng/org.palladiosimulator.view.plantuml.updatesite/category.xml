@@ -9,9 +9,9 @@
     </feature>
     <!-- category definitions -->
     <category-def name="org.palladiosimulator.view.plantuml.category"
-        label="Palladio Bench Reverse Engineering Features">
+        label="Palladio Bench Plantuml Features">
         <description>
-            This category contains all features that are part of a full installation of the SOftware MOdel eXtractor features.
+            This category contains all features that support Plantuml in the Palladio Bench.
         </description>
     </category-def>
 </site>
