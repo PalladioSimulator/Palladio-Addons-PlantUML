@@ -1,0 +1,16 @@
+name: Build Pipeline
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  Palladio-Addons-PerOpteryx:
+    uses: PalladioSimulator/Palladio-Build-ActionsPipeline/.github/workflows/build.yml@v3.2
+    with:
+      use-display-output: true
+      deploy-updatesite: 'releng/org.palladiosimulator.view.plantuml.targetplatform/target/repository'
+    secrets:
+      SERVER_SSH_KEY: ${{ secrets.DEPLOYMENT_SERVER_SSH_KEY }}
+      REMOTE_HOST: ${{ secrets.DEPLOYMENT_REMOTE_HOST }}
+      REMOTE_PORT: ${{ secrets.DEPLOYMENT_REMOTE_PORT }}
+      REMOTE_USER: ${{ secrets.DEPLOYMENT_REMOTE_USER }}
+      REMOTE_TARGET: ${{ secrets.DEPLOYMENT_REMOTE_TARGET }}
