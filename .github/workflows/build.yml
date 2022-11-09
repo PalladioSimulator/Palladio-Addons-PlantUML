@@ -3,7 +3,7 @@ name: Build Pipeline
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  Palladio-Addons-PerOpteryx:
+  Palladio-Addons-PlantUML:
     uses: PalladioSimulator/Palladio-Build-ActionsPipeline/.github/workflows/build.yml@v3.2
     with:
       use-display-output: true
