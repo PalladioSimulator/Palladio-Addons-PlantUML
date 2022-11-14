@@ -18,131 +18,137 @@ import net.sourceforge.plantuml.text.AbstractDiagramIntent;
 
 public class PcmAllocationDiagramIntent extends AbstractDiagramIntent<Allocation> {
 
-	public PcmAllocationDiagramIntent(Allocation source) {
-		super(source);
-	}
+    public PcmAllocationDiagramIntent(Allocation source) {
+        super(source);
+    }
 
-	private static String COMPONENT_START = "[", COMPONENT_END = "]";
-	private static String LINK_START = "[[", LINK_END = "]]";
-	private static String CURLY_OPENING_BRACKET = "{", CURLY_CLOSING_BRACKET = "}";
-	private static String COLON = " : ";
-	private static String PROVIDES_REQUIRES_LINK = " -(0- ";
-	private static String NEWLINE = "\n";
-	private static String SPACE = " ";
-	private static String CONTAINER_KEYWORD = "node";
+    private static String COMPONENT_START = "[", COMPONENT_END = "]";
+    private static String LINK_START = "[[", LINK_END = "]]";
+    private static String CURLY_OPENING_BRACKET = "{", CURLY_CLOSING_BRACKET = "}";
+    private static String COLON = " : ";
+    private static String PROVIDES_REQUIRES_LINK = " -(0- ";
+    private static String NEWLINE = "\n";
+    private static String SPACE = " ";
+    private static String CONTAINER_KEYWORD = "node";
 
-	private final List<AllocationContext> contexts = new ArrayList<>();
-	private final Map<ResourceContainer, List<AllocationContext>> containerToContexts = new HashMap<>();
-	private final List<AssemblyConnector> connectors = new ArrayList<>();
-	private String linkToSystem;
+    private final List<AllocationContext> contexts = new ArrayList<>();
+    private final Map<ResourceContainer, List<AllocationContext>> containerToContexts = new HashMap<>();
+    private final List<AssemblyConnector> connectors = new ArrayList<>();
+    private String linkToSystem;
 
-	@Override
-	public String getDiagramText() {
-		return getDiagramText(getSource());
-	}
+    @Override
+    public String getDiagramText() {
+        return getDiagramText(getSource());
+    }
 
-	private String getDiagramText(final Allocation allocation) {
-		
-		for (AllocationContext context : allocation.getAllocationContexts_Allocation()) {
-			contexts.add(context);
-			ResourceContainer container = context.getResourceContainer_AllocationContext();
-			if (containerToContexts.containsKey(container)) {
-				containerToContexts.get(container).add(context);
-			} else {
-				List<AllocationContext> contextsToMap = new ArrayList<>();
-				contextsToMap.add(context);
-				containerToContexts.put(container, contextsToMap);
-			}
-		}
-		for (Connector connector : allocation.getSystem_Allocation().getConnectors__ComposedStructure()) {
-			if (connector instanceof AssemblyConnector) {
-				connectors.add((AssemblyConnector) connector);
-			}
-		}
-		EcoreDiagramHelper diagramHelper = new EcoreDiagramHelper();
-		linkToSystem = diagramHelper.getEObjectHyperlink(allocation.getSystem_Allocation());
+    private String getDiagramText(final Allocation allocation) {
 
-		final String result = contexts.size() > 0 ? getAllocationDiagramText() : null;
-		return result;
-	}
+        for (AllocationContext context : allocation.getAllocationContexts_Allocation()) {
+            contexts.add(context);
+            ResourceContainer container = context.getResourceContainer_AllocationContext();
+            if (containerToContexts.containsKey(container)) {
+                containerToContexts.get(container)
+                    .add(context);
+            } else {
+                List<AllocationContext> contextsToMap = new ArrayList<>();
+                contextsToMap.add(context);
+                containerToContexts.put(container, contextsToMap);
+            }
+        }
+        for (Connector connector : allocation.getSystem_Allocation()
+            .getConnectors__ComposedStructure()) {
+            if (connector instanceof AssemblyConnector) {
+                connectors.add((AssemblyConnector) connector);
+            }
+        }
+        EcoreDiagramHelper diagramHelper = new EcoreDiagramHelper();
+        linkToSystem = diagramHelper.getEObjectHyperlink(allocation.getSystem_Allocation());
 
-	private String getAllocationDiagramText() {
-		final StringBuilder buffer = new StringBuilder();
+        final String result = contexts.size() > 0 ? getAllocationDiagramText() : null;
+        return result;
+    }
 
-		buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
-		buffer.append(NEWLINE);
+    private String getAllocationDiagramText() {
+        final StringBuilder buffer = new StringBuilder();
 
-		for (ResourceContainer container : containerToContexts.keySet()) {
-			appendContainerStart(container, buffer);
-			for (AllocationContext context : containerToContexts.get(container)) {
-				appendAllocationContext(context, buffer);
+        buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
+        buffer.append(NEWLINE);
 
-			}
-			appendContainerEnd(container, buffer);
-		}
+        for (ResourceContainer container : containerToContexts.keySet()) {
+            appendContainerStart(container, buffer);
+            for (AllocationContext context : containerToContexts.get(container)) {
+                appendAllocationContext(context, buffer);
 
-		for (AssemblyConnector connector : connectors) {
-			appendAssemblyConnector(connector, buffer);
-		}
-		return buffer.toString();
-	}
+            }
+            appendContainerEnd(container, buffer);
+        }
 
-	// example: node System1 {
-	protected void appendContainerStart(final ResourceContainer container, StringBuilder buffer) {
-		buffer.append(CONTAINER_KEYWORD);
-		buffer.append(SPACE);
-		buffer.append(container.getEntityName());
-		buffer.append(SPACE);
-		buffer.append(CURLY_OPENING_BRACKET);
-		buffer.append(NEWLINE);
-	}
+        for (AssemblyConnector connector : connectors) {
+            appendAssemblyConnector(connector, buffer);
+        }
+        return buffer.toString();
+    }
 
-	// example: [DataAccess]
-	protected void appendAllocationContext(final AllocationContext context, StringBuilder buffer) {
-		buffer.append(COMPONENT_START);
-		buffer.append(context.getEntityName());
-		buffer.append(COMPONENT_END);
-		buffer.append(SPACE);
-		buffer.append(LINK_START);
-		buffer.append(linkToSystem);
-		buffer.append(LINK_END);
-		buffer.append(NEWLINE);
-	}
+    // example: node System1 {
+    protected void appendContainerStart(final ResourceContainer container, StringBuilder buffer) {
+        buffer.append(CONTAINER_KEYWORD);
+        buffer.append(SPACE);
+        buffer.append(container.getEntityName());
+        buffer.append(SPACE);
+        buffer.append(CURLY_OPENING_BRACKET);
+        buffer.append(NEWLINE);
+    }
 
-	private void appendContainerEnd(final ResourceContainer container, StringBuilder buffer) {
-		buffer.append(CURLY_CLOSING_BRACKET);
-		buffer.append(NEWLINE);
-	}
+    // example: [DataAccess]
+    protected void appendAllocationContext(final AllocationContext context, StringBuilder buffer) {
+        buffer.append(COMPONENT_START);
+        buffer.append(context.getEntityName());
+        buffer.append(COMPONENT_END);
+        buffer.append(SPACE);
+        buffer.append(LINK_START);
+        buffer.append(linkToSystem);
+        buffer.append(LINK_END);
+        buffer.append(NEWLINE);
+    }
 
-	// example: [Access Control] -(0- [Web Server] : REST
-	protected void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
-		buffer.append(COMPONENT_START);
+    private void appendContainerEnd(final ResourceContainer container, StringBuilder buffer) {
+        buffer.append(CURLY_CLOSING_BRACKET);
+        buffer.append(NEWLINE);
+    }
 
-		// requiring context
-		AssemblyContext reqAssemblyContext = connector.getRequiringAssemblyContext_AssemblyConnector();
-		AllocationContext reqAllocContext = assemblyToAllocationContext(reqAssemblyContext);
-		buffer.append(reqAllocContext.getEntityName());
-		buffer.append(COMPONENT_END);
+    // example: [Access Control] -(0- [Web Server] : REST
+    protected void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
+        buffer.append(COMPONENT_START);
 
-		buffer.append(PROVIDES_REQUIRES_LINK);
+        // requiring context
+        AssemblyContext reqAssemblyContext = connector.getRequiringAssemblyContext_AssemblyConnector();
+        AllocationContext reqAllocContext = assemblyToAllocationContext(reqAssemblyContext);
+        buffer.append(reqAllocContext.getEntityName());
+        buffer.append(COMPONENT_END);
 
-		buffer.append(COMPONENT_START);
+        buffer.append(PROVIDES_REQUIRES_LINK);
 
-		// providing context
-		AssemblyContext provAssemblyContext = connector.getProvidingAssemblyContext_AssemblyConnector();
-		AllocationContext provAllocContext = assemblyToAllocationContext(provAssemblyContext);
-		buffer.append(provAllocContext.getEntityName());
-		buffer.append(COMPONENT_END);
+        buffer.append(COMPONENT_START);
 
-		buffer.append(COLON);
-		buffer.append(connector.getProvidedRole_AssemblyConnector().getEntityName());
-		buffer.append(NEWLINE);
-	}
+        // providing context
+        AssemblyContext provAssemblyContext = connector.getProvidingAssemblyContext_AssemblyConnector();
+        AllocationContext provAllocContext = assemblyToAllocationContext(provAssemblyContext);
+        buffer.append(provAllocContext.getEntityName());
+        buffer.append(COMPONENT_END);
 
-	// helper method
-	protected AllocationContext assemblyToAllocationContext(AssemblyContext assemblyContext) {
-		return contexts.stream().filter(x -> x.getAssemblyContext_AllocationContext().equals(assemblyContext))
-				.collect(Collectors.toList()).get(0);
+        buffer.append(COLON);
+        buffer.append(connector.getProvidedRole_AssemblyConnector()
+            .getEntityName());
+        buffer.append(NEWLINE);
+    }
 
-	}
+    // helper method
+    protected AllocationContext assemblyToAllocationContext(AssemblyContext assemblyContext) {
+        return contexts.stream()
+            .filter(x -> x.getAssemblyContext_AllocationContext()
+                .equals(assemblyContext))
+            .collect(Collectors.toList())
+            .get(0);
+
+    }
 }
