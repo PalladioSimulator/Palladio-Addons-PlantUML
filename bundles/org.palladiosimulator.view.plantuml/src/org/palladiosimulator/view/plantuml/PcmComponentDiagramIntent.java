@@ -62,6 +62,7 @@ public class PcmComponentDiagramIntent extends AbstractDiagramIntent<Repository>
     private final Map<CompositeComponent, Map<Role, String>> outPorts = new HashMap<>();
     private final Map<RepositoryComponent, List<ProvidedRole>> providedRoles = new HashMap<>();
     private final Map<RepositoryComponent, List<RequiredRole>> requiredRoles = new HashMap<>();
+    private final Set<String> componentNames = new HashSet<>();
 
     protected String getDiagramText(final Repository repository) {
 
@@ -85,6 +86,10 @@ public class PcmComponentDiagramIntent extends AbstractDiagramIntent<Repository>
                 requiredRoles.put(component, component.getRequiredRoles_InterfaceRequiringEntity());
             }
         }
+
+        basicComponents.forEach(x -> componentNames.add(x.getEntityName()));
+        compositeComponents.forEach(x -> componentNames.add(x.getEntityName()));
+        innerComponents.forEach(x -> componentNames.add(x.getEntityName()));
 
         for (Interface iface : repository.getInterfaces__Repository()) {
             ifaces.add((OperationInterface) iface);
@@ -292,9 +297,14 @@ public class PcmComponentDiagramIntent extends AbstractDiagramIntent<Repository>
 
     protected void appendProvIfaces(final BasicComponent component, final StringBuilder buffer) {
         for (ProvidedRole provRole : providedRoles.get(component)) {
+            String ifaceName = getIFaceByRef(provRole).getEntityName();
+            // Do not draw implicit interfaces.
+            if (componentNames.contains(ifaceName)) {
+                continue;
+            }
             buffer.append(NAME_START);
             buffer.append(INTERFACE_START);
-            buffer.append(getIFaceByRef(provRole).getEntityName());
+            buffer.append(ifaceName);
             buffer.append(NAME_END);
             buffer.append(SIMPLE_LINK);
             appendComponent(component, buffer);
@@ -305,12 +315,20 @@ public class PcmComponentDiagramIntent extends AbstractDiagramIntent<Repository>
     // example: [First Component] ..> HTTP : requires
     protected void appendReqIfaces(final BasicComponent component, final StringBuilder buffer) {
         for (RequiredRole reqRole : requiredRoles.get(component)) {
+            String ifaceName = getIFaceByRef(reqRole).getEntityName();
             appendComponent(component, buffer);
             buffer.append(REQUIRES_LINK);
-            buffer.append(NAME_START);
-            buffer.append(INTERFACE_START);
-            buffer.append(getIFaceByRef(reqRole).getEntityName());
-            buffer.append(NAME_END);
+            // Refer directly to the component for implicit interfaces.
+            if (componentNames.contains(ifaceName)) {
+                buffer.append(COMPONENT_START);
+                buffer.append(ifaceName);
+                buffer.append(COMPONENT_END);
+            } else {
+                buffer.append(NAME_START);
+                buffer.append(INTERFACE_START);
+                buffer.append(ifaceName);
+                buffer.append(NAME_END);
+            }
             buffer.append(REQUIRES_LABEL);
             buffer.append(NEWLINE);
         }
