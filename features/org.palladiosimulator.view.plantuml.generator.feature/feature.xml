@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.palladiosimulator.view.plantuml.feature"
-      label="Palladio Bench Plantuml Feature"
+      id="org.palladiosimulator.view.plantuml.generator.feature"
+      label="Palladio Bench Plantuml Generator Feature"
       version="1.0.0"
       plugin="org.palladiosimulator.branding"
       license-feature="org.palladiosimulator.license"
@@ -20,13 +20,6 @@
       <import plugin="org.eclipse.swt"/>
       <import plugin="org.palladiosimulator.commons"/>
    </requires>
-
-   <plugin
-         id="org.palladiosimulator.view.plantuml"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="org.palladiosimulator.view.plantuml.generator"
