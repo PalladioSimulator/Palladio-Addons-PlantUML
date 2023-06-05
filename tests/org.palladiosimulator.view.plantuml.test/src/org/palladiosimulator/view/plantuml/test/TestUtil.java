@@ -16,43 +16,47 @@ import org.palladiosimulator.pcm.PcmPackage;
  */
 
 public class TestUtil {
-	
-	/**
-	 * Load model from path
-	 * 
-	 * @param filePath the file path
-	 * @return the e object - casted at use
-	 */
-	public static EObject loadModel(final String filePath) {
-		PcmPackage.eINSTANCE.eClass();
 
-		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
-				.put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
-		URI filePathUri = org.eclipse.emf.common.util.URI.createFileURI(filePath);
+    /**
+     * Load model from path
+     * 
+     * @param filePath
+     *            the file path
+     * @return the e object - casted at use
+     */
+    public static EObject loadModel(final String filePath) {
+        PcmPackage.eINSTANCE.eClass();
 
-		Resource resource = resourceSet.getResource(filePathUri, true);
-		
-		return resource.getContents().get(0);
-		
-	}
-	
-	
-	/**
-	 * Count occurrences.
-	 *
-	 * @param text the text
-	 * @param part the searched string
-	 * @return the number
-	 */
-	public static int countOccurrences(String text, String part) {
-		int counter = 0;
-		List<String> splittedText = Arrays.asList(text.split("\n"));
-		for (String line : splittedText) {
-			if (line.contains(part)) {
-				counter++;
-			}
-		}
-		return counter;
-	}
+        ResourceSet resourceSet = new ResourceSetImpl();
+        resourceSet.getResourceFactoryRegistry()
+            .getExtensionToFactoryMap()
+            .put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
+        URI filePathUri = org.eclipse.emf.common.util.URI.createFileURI(filePath);
+
+        Resource resource = resourceSet.getResource(filePathUri, true);
+
+        return resource.getContents()
+            .get(0);
+
+    }
+
+    /**
+     * Count occurrences.
+     *
+     * @param text
+     *            the text
+     * @param part
+     *            the searched string
+     * @return the number
+     */
+    public static int countOccurrences(String text, String part) {
+        int counter = 0;
+        List<String> splittedText = Arrays.asList(text.split("\n"));
+        for (String line : splittedText) {
+            if (line.contains(part)) {
+                counter++;
+            }
+        }
+        return counter;
+    }
 }

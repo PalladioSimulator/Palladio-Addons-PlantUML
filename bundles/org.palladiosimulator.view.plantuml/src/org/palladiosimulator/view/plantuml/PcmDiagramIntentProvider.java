@@ -15,46 +15,46 @@ import net.sourceforge.plantuml.util.DiagramIntent;
 
 public class PcmDiagramIntentProvider extends AbstractEcoreDiagramIntentProvider {
 
-	public PcmDiagramIntentProvider() {
-		super();
-	}
+    public PcmDiagramIntentProvider() {
+        super();
+    }
 
-	protected PcmDiagramIntentProvider(final Class<?> editorType) {
-		super(editorType);
-	}
+    protected PcmDiagramIntentProvider(final Class<?> editorType) {
+        super(editorType);
+    }
 
-	@Override
-	protected Boolean supportsPath(final IPath path) {
-		return "ecore".equals(path.getFileExtension()) || "xmi".equals(path.getFileExtension());
-	}
+    @Override
+    protected Boolean supportsPath(final IPath path) {
+        return "ecore".equals(path.getFileExtension()) || "xmi".equals(path.getFileExtension());
+    }
 
-	@Override
-	protected boolean supportsEObject(final EObject object) {
-		return true;
-	}
+    @Override
+    protected boolean supportsEObject(final EObject object) {
+        return true;
+    }
 
-	private static boolean isPcmRepositoryObject(final Object object) {
-		return object instanceof Repository;
-	}
+    private static boolean isPcmRepositoryObject(final Object object) {
+        return object instanceof Repository;
+    }
 
-	private static boolean isPcmSystemObject(final Object object) {
-		return object instanceof System;
-	}
+    private static boolean isPcmSystemObject(final Object object) {
+        return object instanceof System;
+    }
 
-	private static boolean isPcmAllocationObject(final Object object) {
-		return object instanceof Allocation;
-	}
+    private static boolean isPcmAllocationObject(final Object object) {
+        return object instanceof Allocation;
+    }
 
-	@Override
-	protected Collection<? extends DiagramIntent> getDiagramInfos(final EObject eObject) {
-		final Collection<AbstractDiagramIntent<?>> diagrams = new ArrayList<>();
-		if (isPcmRepositoryObject(eObject)) {
-			diagrams.add(new PcmComponentDiagramIntent((Repository) eObject));
-		} else if (isPcmSystemObject(eObject)) {
-			diagrams.add(new PcmSystemDiagramIntent((System) eObject));
-		} else if (isPcmAllocationObject(eObject)) {
-			diagrams.add(new PcmAllocationDiagramIntent((Allocation) eObject));
-		}
-		return diagrams;
-	}
+    @Override
+    protected Collection<? extends DiagramIntent> getDiagramInfos(final EObject eObject) {
+        final Collection<AbstractDiagramIntent<?>> diagrams = new ArrayList<>();
+        if (isPcmRepositoryObject(eObject)) {
+            diagrams.add(new PcmComponentDiagramIntent((Repository) eObject));
+        } else if (isPcmSystemObject(eObject)) {
+            diagrams.add(new PcmSystemDiagramIntent((System) eObject));
+        } else if (isPcmAllocationObject(eObject)) {
+            diagrams.add(new PcmAllocationDiagramIntent((Allocation) eObject));
+        }
+        return diagrams;
+    }
 }
