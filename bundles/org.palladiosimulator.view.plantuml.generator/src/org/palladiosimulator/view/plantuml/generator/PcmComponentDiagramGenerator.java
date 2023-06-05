@@ -1,6 +1,7 @@
 package org.palladiosimulator.view.plantuml.generator;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.palladiosimulator.pcm.core.composition.AssemblyConnector;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector;
 import org.palladiosimulator.pcm.core.composition.RequiredDelegationConnector;
+import org.palladiosimulator.pcm.core.entity.NamedElement;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.CompositeComponent;
 import org.palladiosimulator.pcm.repository.Interface;
@@ -71,7 +73,11 @@ public class PcmComponentDiagramGenerator {
                 compositeComponents.add(comp);
                 addInnerComponents(comp);
                 providedRoles.put(component, comp.getProvidedRoles_InterfaceProvidingEntity());
+                providedRoles.get(component)
+                    .sort(byName());
                 requiredRoles.put(component, comp.getRequiredRoles_InterfaceRequiringEntity());
+                requiredRoles.get(component)
+                    .sort(byName());
                 createPorts(comp);
             }
         }
@@ -82,9 +88,16 @@ public class PcmComponentDiagramGenerator {
             } else if (component instanceof BasicComponent) {
                 basicComponents.add((BasicComponent) component);
                 providedRoles.put(component, component.getProvidedRoles_InterfaceProvidingEntity());
+                providedRoles.get(component)
+                    .sort(byName());
                 requiredRoles.put(component, component.getRequiredRoles_InterfaceRequiringEntity());
+                requiredRoles.get(component)
+                    .sort(byName());
             }
         }
+
+        compositeComponents.sort(byName());
+        basicComponents.sort(byName());
 
         basicComponents.forEach(x -> componentNames.add(x.getEntityName()));
         compositeComponents.forEach(x -> componentNames.add(x.getEntityName()));
@@ -93,6 +106,8 @@ public class PcmComponentDiagramGenerator {
         for (Interface iface : repository.getInterfaces__Repository()) {
             ifaces.add((OperationInterface) iface);
         }
+
+        ifaces.sort(byName());
 
         if (compositeComponents.isEmpty() && basicComponents.isEmpty()) {
             return null;
@@ -112,6 +127,10 @@ public class PcmComponentDiagramGenerator {
                 .filter(AssemblyConnector.class::isInstance)
                 .map(AssemblyConnector.class::cast)
                 .map(x -> x.getProvidedRole_AssemblyConnector())
+                .sorted((a, b) -> a.getProvidedInterface__OperationProvidedRole()
+                    .getEntityName()
+                    .compareTo(b.getProvidedInterface__OperationProvidedRole()
+                        .getEntityName()))
                 .collect(Collectors.toSet());
 
             Set<RequiredRole> connectedRequirements = component.getConnectors__ComposedStructure()
@@ -119,15 +138,21 @@ public class PcmComponentDiagramGenerator {
                 .filter(AssemblyConnector.class::isInstance)
                 .map(AssemblyConnector.class::cast)
                 .map(x -> x.getRequiredRole_AssemblyConnector())
+                .sorted((a, b) -> a.getRequiredInterface__OperationRequiredRole()
+                    .getEntityName()
+                    .compareTo(b.getRequiredInterface__OperationRequiredRole()
+                        .getEntityName()))
                 .collect(Collectors.toSet());
 
             List<ProvidedRole> innerProvisions = new ArrayList<>(
                     innerComponent.getProvidedRoles_InterfaceProvidingEntity());
             innerProvisions.removeAll(connectedProvisions);
+            innerProvisions.sort(byName());
 
             List<RequiredRole> innerRequirements = new ArrayList<>(
                     innerComponent.getRequiredRoles_InterfaceRequiringEntity());
             innerRequirements.removeAll(connectedRequirements);
+            innerRequirements.sort(byName());
 
             providedRoles.put(innerComponent, innerProvisions);
             requiredRoles.put(innerComponent, innerRequirements);
@@ -236,16 +261,19 @@ public class PcmComponentDiagramGenerator {
             .stream()
             .filter(AssemblyConnector.class::isInstance)
             .map(AssemblyConnector.class::cast)
+            .sorted(byName())
             .forEach(x -> appendConnector(x, buffer));
         component.getConnectors__ComposedStructure()
             .stream()
             .filter(ProvidedDelegationConnector.class::isInstance)
             .map(ProvidedDelegationConnector.class::cast)
+            .sorted(byName())
             .forEach(x -> appendDelegation(component, x, buffer));
         component.getConnectors__ComposedStructure()
             .stream()
             .filter(RequiredDelegationConnector.class::isInstance)
             .map(RequiredDelegationConnector.class::cast)
+            .sorted(byName())
             .forEach(x -> appendDelegation(component, x, buffer));
         buffer.append(COMPOSITE_BLOCK_END);
     }
@@ -378,4 +406,7 @@ public class PcmComponentDiagramGenerator {
         return null;
     }
 
+    private Comparator<NamedElement> byName() {
+        return Comparator.comparing(x -> x.getEntityName());
+    }
 }
