@@ -1,6 +1,7 @@
 package org.palladiosimulator.view.plantuml.test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +13,7 @@ import org.palladiosimulator.pcm.core.composition.AssemblyConnector;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.composition.Connector;
 import org.palladiosimulator.pcm.system.System;
-import org.palladiosimulator.view.plantuml.PcmSystemDiagramIntent;
+import org.palladiosimulator.view.plantuml.generator.PcmSystemDiagramGenerator;
 
 /**
  * @author Sonya Voneva
@@ -20,14 +21,14 @@ import org.palladiosimulator.view.plantuml.PcmSystemDiagramIntent;
  */
 class SystemTest {
 
-    private static PcmSystemDiagramIntent systemDiagramIntent;
+    private static PcmSystemDiagramGenerator systemDiagramIntent;
     private static org.palladiosimulator.pcm.system.System system;
     private static String diagramText;
 
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
         system = (System) TestUtil.loadModel("\\resources\\ScreencastMediaStore\\MediaStore-Cacheless.system");
-        systemDiagramIntent = new PcmSystemDiagramIntent(system);
+        systemDiagramIntent = new PcmSystemDiagramGenerator(system);
         diagramText = systemDiagramIntent.getDiagramText();
     }
 

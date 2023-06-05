@@ -14,7 +14,7 @@ import org.palladiosimulator.pcm.repository.ProvidedRole;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
 import org.palladiosimulator.pcm.repository.RequiredRole;
-import org.palladiosimulator.view.plantuml.PcmComponentDiagramIntent;
+import org.palladiosimulator.view.plantuml.generator.PcmComponentDiagramGenerator;
 
 /**
  * @author Sonya Voneva
@@ -22,7 +22,7 @@ import org.palladiosimulator.view.plantuml.PcmComponentDiagramIntent;
  */
 class ComponentTest {
 
-    private static PcmComponentDiagramIntent componentDiagramIntent;
+    private static PcmComponentDiagramGenerator componentDiagramIntent;
 
     private static Repository repository;
     private static String diagramText;
@@ -30,7 +30,7 @@ class ComponentTest {
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
         repository = (Repository) TestUtil.loadModel("\\resources\\ScreencastMediaStore\\MediaStore.repository");
-        componentDiagramIntent = new PcmComponentDiagramIntent(repository);
+        componentDiagramIntent = new PcmComponentDiagramGenerator(repository);
         diagramText = componentDiagramIntent.getDiagramText();
     }
 

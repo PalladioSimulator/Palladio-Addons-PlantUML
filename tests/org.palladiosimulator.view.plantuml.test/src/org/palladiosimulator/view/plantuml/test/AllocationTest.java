@@ -1,6 +1,8 @@
 package org.palladiosimulator.view.plantuml.test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -15,7 +17,7 @@ import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.core.composition.AssemblyConnector;
 import org.palladiosimulator.pcm.core.composition.Connector;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
-import org.palladiosimulator.view.plantuml.PcmAllocationDiagramIntent;
+import org.palladiosimulator.view.plantuml.generator.PcmAllocationDiagramGenerator;
 
 /**
  * @author Sonya Voneva
@@ -23,7 +25,7 @@ import org.palladiosimulator.view.plantuml.PcmAllocationDiagramIntent;
  */
 class AllocationTest {
 
-    private static PcmAllocationDiagramIntent allocationDiagramIntent;
+    private static PcmAllocationDiagramGenerator allocationDiagramGenerator;
     private static Allocation allocation;
     private static String diagramText;
 
@@ -34,8 +36,8 @@ class AllocationTest {
     static void setUpBeforeClass() throws Exception {
         allocation = (Allocation) TestUtil
             .loadModel("\\resources\\ScreencastMediaStore\\MediaStore-Cacheless.allocation");
-        allocationDiagramIntent = new PcmAllocationDiagramIntent(allocation);
-        diagramText = allocationDiagramIntent.getDiagramText();
+        allocationDiagramGenerator = new PcmAllocationDiagramGenerator(allocation);
+        diagramText = allocationDiagramGenerator.getDiagramText();
     }
 
     /**
