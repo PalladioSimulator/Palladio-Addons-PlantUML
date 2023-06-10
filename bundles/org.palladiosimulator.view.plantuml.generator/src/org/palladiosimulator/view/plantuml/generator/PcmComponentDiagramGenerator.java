@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.palladiosimulator.pcm.core.composition.AssemblyConnector;
@@ -51,8 +52,8 @@ public class PcmComponentDiagramGenerator {
     private final List<OperationInterface> ifaces = new ArrayList<>();
     private final Map<CompositeComponent, Map<Role, String>> inPorts = new HashMap<>();
     private final Map<CompositeComponent, Map<Role, String>> outPorts = new HashMap<>();
-    private final Map<RepositoryComponent, List<ProvidedRole>> providedRoles = new HashMap<>();
-    private final Map<RepositoryComponent, List<RequiredRole>> requiredRoles = new HashMap<>();
+    private final Map<RepositoryComponent, EList<ProvidedRole>> providedRoles = new HashMap<>();
+    private final Map<RepositoryComponent, EList<RequiredRole>> requiredRoles = new HashMap<>();
     private final Set<String> componentNames = new HashSet<>();
 
     private final String diagramText;
@@ -73,11 +74,9 @@ public class PcmComponentDiagramGenerator {
                 compositeComponents.add(comp);
                 addInnerComponents(comp);
                 providedRoles.put(component, comp.getProvidedRoles_InterfaceProvidingEntity());
-                providedRoles.get(component)
-                    .sort(byName());
+                ECollections.sort(providedRoles.get(component), byName());
                 requiredRoles.put(component, comp.getRequiredRoles_InterfaceRequiringEntity());
-                requiredRoles.get(component)
-                    .sort(byName());
+                ECollections.sort(requiredRoles.get(component), byName());
                 createPorts(comp);
             }
         }
@@ -88,11 +87,9 @@ public class PcmComponentDiagramGenerator {
             } else if (component instanceof BasicComponent) {
                 basicComponents.add((BasicComponent) component);
                 providedRoles.put(component, component.getProvidedRoles_InterfaceProvidingEntity());
-                providedRoles.get(component)
-                    .sort(byName());
+                ECollections.sort(providedRoles.get(component), byName());
                 requiredRoles.put(component, component.getRequiredRoles_InterfaceRequiringEntity());
-                requiredRoles.get(component)
-                    .sort(byName());
+                ECollections.sort(requiredRoles.get(component), byName());
             }
         }
 
@@ -144,15 +141,13 @@ public class PcmComponentDiagramGenerator {
                         .getEntityName()))
                 .collect(Collectors.toSet());
 
-            List<ProvidedRole> innerProvisions = new ArrayList<>(
-                    innerComponent.getProvidedRoles_InterfaceProvidingEntity());
+            EList<ProvidedRole> innerProvisions = innerComponent.getProvidedRoles_InterfaceProvidingEntity();
             innerProvisions.removeAll(connectedProvisions);
-            innerProvisions.sort(byName());
+            ECollections.sort(innerProvisions, byName());
 
-            List<RequiredRole> innerRequirements = new ArrayList<>(
-                    innerComponent.getRequiredRoles_InterfaceRequiringEntity());
+            EList<RequiredRole> innerRequirements = innerComponent.getRequiredRoles_InterfaceRequiringEntity();
             innerRequirements.removeAll(connectedRequirements);
-            innerRequirements.sort(byName());
+            ECollections.sort(innerRequirements, byName());
 
             providedRoles.put(innerComponent, innerProvisions);
             requiredRoles.put(innerComponent, innerRequirements);
@@ -161,7 +156,7 @@ public class PcmComponentDiagramGenerator {
 
     private void createPorts(final CompositeComponent component) {
         HashMap<Role, String> inPortNames = new HashMap<>();
-        for (ProvidedRole role : providedRoles.getOrDefault(component, List.of())) {
+        for (ProvidedRole role : providedRoles.getOrDefault(component, ECollections.asEList())) {
             if (role instanceof OperationProvidedRole) {
                 String interfaceName = ((OperationProvidedRole) role).getProvidedInterface__OperationProvidedRole()
                     .getEntityName();
@@ -173,7 +168,7 @@ public class PcmComponentDiagramGenerator {
         inPorts.put(component, inPortNames);
 
         HashMap<Role, String> outPortNames = new HashMap<>();
-        for (RequiredRole role : requiredRoles.getOrDefault(component, List.of())) {
+        for (RequiredRole role : requiredRoles.getOrDefault(component, ECollections.asEList())) {
             if (role instanceof OperationRequiredRole) {
                 String interfaceName = ((OperationRequiredRole) role).getRequiredInterface__OperationRequiredRole()
                     .getEntityName();
