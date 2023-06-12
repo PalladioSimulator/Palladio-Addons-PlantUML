@@ -7,12 +7,12 @@
     <feature id="org.palladiosimulator.view.plantuml.feature.source">
         <category name="org.palladiosimulator.view.plantuml.category" />
     </feature>
-     <feature id="org.palladiosimulator.view.plantuml.generator.feature">
+    <feature id="org.palladiosimulator.view.plantuml.generator.feature">
         <category name="org.palladiosimulator.view.plantuml.category" />
     </feature>
     <feature id="org.palladiosimulator.view.plantuml.generator.feature.source">
         <category name="org.palladiosimulator.view.plantuml.category" />
-    </feature>   
+    </feature>
     <!-- category definitions -->
     <category-def name="org.palladiosimulator.view.plantuml.category"
         label="Palladio Bench Plantuml Features">
