@@ -41,7 +41,6 @@ public class PcmComponentDiagramGenerator {
     private static String COMPOSITE_BLOCK_END = "}";
     private static String INPORT_DECLARATION = "portin \" \" as ";
     private static String OUTPORT_DECLARATION = "portout \" \" as ";
-    private static String INTERFACE_START = "interface ";
     private static String INPORT_DELIMITER = ".requires.";
     private static String OUTPORT_DELIMITER = ".provides.";
     private static String COMPOSITE_TITLE_SPACER = "\\n\\n\\n\\n\\n\\n";
@@ -162,9 +161,7 @@ public class PcmComponentDiagramGenerator {
                     .getEntityName();
                 String componentName = component.getEntityName();
                 String name = componentName + INPORT_DELIMITER + interfaceName;
-                name = name.replaceAll("\\s", ".");
-                name = name.replaceAll("/", "_");
-                inPortNames.put(role, name);
+                inPortNames.put(role, escape(name));
             }
         }
         inPorts.put(component, inPortNames);
@@ -176,9 +173,7 @@ public class PcmComponentDiagramGenerator {
                     .getEntityName();
                 String componentName = component.getEntityName();
                 String name = componentName + OUTPORT_DELIMITER + interfaceName;
-                name = name.replaceAll("\\s", ".");
-                name = name.replaceAll("/", "_");
-                outPortNames.put(role, name);
+                outPortNames.put(role, escape(name));
             }
         }
         outPorts.put(component, outPortNames);
@@ -326,10 +321,10 @@ public class PcmComponentDiagramGenerator {
             if (componentNames.contains(ifaceName)) {
                 continue;
             }
-            buffer.append(NAME_START);
-            buffer.append(INTERFACE_START);
-            buffer.append(ifaceName);
-            buffer.append(NAME_END);
+
+            String ifaceIdentifier = appendIface(provRole, buffer);
+
+            buffer.append(ifaceIdentifier);
             buffer.append(SIMPLE_LINK);
             appendComponent(component, buffer);
             buffer.append(NEWLINE);
@@ -339,19 +334,19 @@ public class PcmComponentDiagramGenerator {
     // example: [First Component] ..> HTTP : requires
     protected void appendReqIfaces(final BasicComponent component, final StringBuilder buffer) {
         for (RequiredRole reqRole : requiredRoles.get(component)) {
-            String ifaceName = getIFaceByRef(reqRole).getEntityName();
-            appendComponent(component, buffer);
-            buffer.append(REQUIRES_LINK);
             // Refer directly to the component for implicit interfaces.
+            String ifaceName = getIFaceByRef(reqRole).getEntityName();
             if (componentNames.contains(ifaceName)) {
+                appendComponent(component, buffer);
+                buffer.append(REQUIRES_LINK);
                 buffer.append(COMPONENT_START);
                 buffer.append(ifaceName);
                 buffer.append(COMPONENT_END);
             } else {
-                buffer.append(NAME_START);
-                buffer.append(INTERFACE_START);
-                buffer.append(ifaceName);
-                buffer.append(NAME_END);
+                String ifaceIdentifier = appendIface(reqRole, buffer);
+                appendComponent(component, buffer);
+                buffer.append(REQUIRES_LINK);
+                buffer.append(ifaceIdentifier);
             }
             buffer.append(REQUIRES_LABEL);
             buffer.append(NEWLINE);
@@ -362,10 +357,9 @@ public class PcmComponentDiagramGenerator {
         for (ProvidedRole provRole : providedRoles.get(component)) {
             String portName = inPorts.get(component)
                 .get(provRole);
-            buffer.append(NAME_START);
-            buffer.append(INTERFACE_START);
-            buffer.append(getIFaceByRef(provRole).getEntityName());
-            buffer.append(NAME_END);
+            String ifaceIdentifier = appendIface(provRole, buffer);
+
+            buffer.append(ifaceIdentifier);
             buffer.append(SIMPLE_LINK);
             buffer.append(NAME_START);
             buffer.append(portName);
@@ -379,17 +373,29 @@ public class PcmComponentDiagramGenerator {
         for (RequiredRole reqRole : requiredRoles.get(component)) {
             String portName = outPorts.get(component)
                 .get(reqRole);
+            String ifaceIdentifier = appendIface(reqRole, buffer);
+
             buffer.append(NAME_START);
             buffer.append(portName);
             buffer.append(NAME_END);
             buffer.append(REQUIRES_LINK);
-            buffer.append(NAME_START);
-            buffer.append(INTERFACE_START);
-            buffer.append(getIFaceByRef(reqRole).getEntityName());
-            buffer.append(NAME_END);
+            buffer.append(ifaceIdentifier);
             buffer.append(REQUIRES_LABEL);
             buffer.append(NEWLINE);
         }
+    }
+
+    private String appendIface(Role role, final StringBuilder buffer) {
+        String ifaceName = getIFaceByRef(role).getEntityName();
+        String ifaceIdentifier = "interface." + escape(ifaceName);
+        buffer.append("interface ");
+        buffer.append(NAME_START);
+        buffer.append(ifaceName);
+        buffer.append(NAME_END);
+        buffer.append(" as ");
+        buffer.append(ifaceIdentifier);
+        buffer.append(NEWLINE);
+        return ifaceIdentifier;
     }
 
     // helper method
@@ -405,5 +411,10 @@ public class PcmComponentDiagramGenerator {
 
     private Comparator<NamedElement> byName() {
         return Comparator.comparing(x -> x.getEntityName());
+    }
+
+    private static String escape(String identifier) {
+        return identifier.replaceAll("\\s", ".")
+            .replaceAll("[/\\[\\]]", "_");
     }
 }
