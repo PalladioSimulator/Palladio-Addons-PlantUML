@@ -33,7 +33,7 @@ public class PcmComponentDiagramGenerator {
 
     private static String NAME_START = "\"", NAME_END = "\"";
     private static String COMPONENT_START = "[", COMPONENT_END = "]";
-    private static String SIMPLE_LINK = "--", REQUIRES_LINK = "..>";
+    private static String SIMPLE_LINK = "--", REQUIRES_LINK = "..>", INTERNAL_REQUIRES_LINK = "..";
     private static String REQUIRES_LABEL = " : requires";
     private static String NEWLINE = "\n";
     private static String COMPOSITE_COMPONENT_START = "component " + NAME_START;
@@ -292,9 +292,8 @@ public class PcmComponentDiagramGenerator {
         buffer.append(NAME_START);
         buffer.append(portName);
         buffer.append(NAME_END);
-        buffer.append(REQUIRES_LINK);
+        buffer.append(SIMPLE_LINK);
         appendComponent((BasicComponent) providingContext.getEncapsulatedComponent__AssemblyContext(), buffer);
-        buffer.append(REQUIRES_LABEL);
         buffer.append(NEWLINE);
     }
 
@@ -306,11 +305,10 @@ public class PcmComponentDiagramGenerator {
 
         // TODO: Currently assumes non-nested components.
         appendComponent((BasicComponent) requiringContext.getEncapsulatedComponent__AssemblyContext(), buffer);
-        buffer.append(REQUIRES_LINK);
+        buffer.append(INTERNAL_REQUIRES_LINK);
         buffer.append(NAME_START);
         buffer.append(portName);
         buffer.append(NAME_END);
-        buffer.append(REQUIRES_LABEL);
         buffer.append(NEWLINE);
     }
 
