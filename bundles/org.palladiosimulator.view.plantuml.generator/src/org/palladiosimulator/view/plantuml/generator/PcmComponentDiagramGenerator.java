@@ -39,11 +39,11 @@ public class PcmComponentDiagramGenerator {
     private static String COMPOSITE_COMPONENT_START = "component " + NAME_START;
     private static String COMPOSITE_BLOCK_START = NAME_END + " {";
     private static String COMPOSITE_BLOCK_END = "}";
-    private static String INPORT_START = "portin " + NAME_START;
-    private static String OUTPORT_START = "portout " + NAME_START;
+    private static String INPORT_DECLARATION = "portin \" \" as ";
+    private static String OUTPORT_DECLARATION = "portout \" \" as ";
     private static String INTERFACE_START = "interface ";
-    private static String PORT_DELIMITER = "\\n";
-    private static String PORT_END = NAME_END;
+    private static String INPORT_DELIMITER = ".requires.";
+    private static String OUTPORT_DELIMITER = ".provides.";
     private static String COMPOSITE_TITLE_SPACER = "\\n\\n\\n\\n\\n\\n";
 
     private final List<BasicComponent> basicComponents = new ArrayList<>();
@@ -161,7 +161,9 @@ public class PcmComponentDiagramGenerator {
                 String interfaceName = ((OperationProvidedRole) role).getProvidedInterface__OperationProvidedRole()
                     .getEntityName();
                 String componentName = component.getEntityName();
-                String name = interfaceName + PORT_DELIMITER + componentName;
+                String name = componentName + INPORT_DELIMITER + interfaceName;
+                name = name.replaceAll("\\s", ".");
+                name = name.replaceAll("/", "_");
                 inPortNames.put(role, name);
             }
         }
@@ -173,7 +175,9 @@ public class PcmComponentDiagramGenerator {
                 String interfaceName = ((OperationRequiredRole) role).getRequiredInterface__OperationRequiredRole()
                     .getEntityName();
                 String componentName = component.getEntityName();
-                String name = interfaceName + PORT_DELIMITER + componentName;
+                String name = componentName + OUTPORT_DELIMITER + interfaceName;
+                name = name.replaceAll("\\s", ".");
+                name = name.replaceAll("/", "_");
                 outPortNames.put(role, name);
             }
         }
@@ -239,17 +243,15 @@ public class PcmComponentDiagramGenerator {
         inPorts.get(component)
             .values()
             .forEach(x -> {
-                buffer.append(INPORT_START);
+                buffer.append(INPORT_DECLARATION);
                 buffer.append(x);
-                buffer.append(PORT_END);
                 buffer.append(NEWLINE);
             });
         outPorts.get(component)
             .values()
             .forEach(x -> {
-                buffer.append(OUTPORT_START);
+                buffer.append(OUTPORT_DECLARATION);
                 buffer.append(x);
-                buffer.append(PORT_END);
                 buffer.append(NEWLINE);
             });
         component.getConnectors__ComposedStructure()
