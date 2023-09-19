@@ -95,9 +95,9 @@ public class PcmComponentDiagramGenerator {
         compositeComponents.sort(byName());
         basicComponents.sort(byName());
 
-        basicComponents.forEach(x -> componentNames.add(x.getEntityName()));
-        compositeComponents.forEach(x -> componentNames.add(x.getEntityName()));
-        innerComponents.forEach(x -> componentNames.add(x.getEntityName()));
+        basicComponents.forEach(x -> componentNames.add(escape(x.getEntityName())));
+        compositeComponents.forEach(x -> componentNames.add(escape(x.getEntityName())));
+        innerComponents.forEach(x -> componentNames.add(escape(x.getEntityName())));
 
         for (Interface iface : repository.getInterfaces__Repository()) {
             ifaces.add((OperationInterface) iface);
@@ -123,10 +123,10 @@ public class PcmComponentDiagramGenerator {
                 .filter(AssemblyConnector.class::isInstance)
                 .map(AssemblyConnector.class::cast)
                 .map(x -> x.getProvidedRole_AssemblyConnector())
-                .sorted((a, b) -> a.getProvidedInterface__OperationProvidedRole()
-                    .getEntityName()
-                    .compareTo(b.getProvidedInterface__OperationProvidedRole()
-                        .getEntityName()))
+                .sorted((a, b) -> escape(a.getProvidedInterface__OperationProvidedRole()
+                    .getEntityName()).compareTo(escape(
+                            b.getProvidedInterface__OperationProvidedRole()
+                                .getEntityName())))
                 .collect(Collectors.toSet());
 
             Set<RequiredRole> connectedRequirements = component.getConnectors__ComposedStructure()
@@ -134,10 +134,10 @@ public class PcmComponentDiagramGenerator {
                 .filter(AssemblyConnector.class::isInstance)
                 .map(AssemblyConnector.class::cast)
                 .map(x -> x.getRequiredRole_AssemblyConnector())
-                .sorted((a, b) -> a.getRequiredInterface__OperationRequiredRole()
-                    .getEntityName()
-                    .compareTo(b.getRequiredInterface__OperationRequiredRole()
-                        .getEntityName()))
+                .sorted((a, b) -> escape(a.getRequiredInterface__OperationRequiredRole()
+                    .getEntityName()).compareTo(escape(
+                            b.getRequiredInterface__OperationRequiredRole()
+                                .getEntityName())))
                 .collect(Collectors.toSet());
 
             EList<ProvidedRole> innerProvisions = innerComponent.getProvidedRoles_InterfaceProvidingEntity();
@@ -215,7 +215,7 @@ public class PcmComponentDiagramGenerator {
 
     protected void appendComponent(final BasicComponent component, final StringBuilder buffer) {
         buffer.append(COMPONENT_START);
-        buffer.append(component.getEntityName());
+        buffer.append(escape(component.getEntityName()));
         buffer.append(COMPONENT_END);
 
     }
@@ -314,7 +314,7 @@ public class PcmComponentDiagramGenerator {
 
     protected void appendProvIfaces(final BasicComponent component, final StringBuilder buffer) {
         for (ProvidedRole provRole : providedRoles.get(component)) {
-            String ifaceName = getIFaceByRef(provRole).getEntityName();
+            String ifaceName = escape(getIFaceByRef(provRole).getEntityName());
             // Do not draw implicit interfaces.
             if (componentNames.contains(ifaceName)) {
                 continue;
@@ -333,7 +333,7 @@ public class PcmComponentDiagramGenerator {
     protected void appendReqIfaces(final BasicComponent component, final StringBuilder buffer) {
         for (RequiredRole reqRole : requiredRoles.get(component)) {
             // Refer directly to the component for implicit interfaces.
-            String ifaceName = getIFaceByRef(reqRole).getEntityName();
+            String ifaceName = escape(getIFaceByRef(reqRole).getEntityName());
             if (componentNames.contains(ifaceName)) {
                 appendComponent(component, buffer);
                 buffer.append(REQUIRES_LINK);
@@ -408,11 +408,11 @@ public class PcmComponentDiagramGenerator {
     }
 
     private Comparator<NamedElement> byName() {
-        return Comparator.comparing(x -> x.getEntityName());
+        return Comparator.comparing(x -> escape(x.getEntityName()));
     }
 
     private static String escape(String identifier) {
         return identifier.replaceAll("\\s", ".")
-            .replaceAll("[/\\[\\]-]", "_");
+            .replaceAll("[\\/\\[\\]\\-\\*]", "_");
     }
 }
