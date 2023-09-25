@@ -412,7 +412,7 @@ public class PcmComponentDiagramGenerator {
     }
 
     private static String escape(String identifier) {
-        return identifier.replaceAll("\\s", ".")
-            .replaceAll("[\\/\\[\\]\\-\\*]", "_");
+        return identifier.replaceAll("\\s+", ".")
+            .replaceAll("[\\/\\[\\]\\-\\*?=]", "_");
     }
 }
