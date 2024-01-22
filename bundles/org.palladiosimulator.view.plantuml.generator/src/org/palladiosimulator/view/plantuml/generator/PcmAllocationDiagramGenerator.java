@@ -24,70 +24,13 @@ public class PcmAllocationDiagramGenerator {
     private static String SPACE = " ";
     private static String CONTAINER_KEYWORD = "node";
 
-    private final List<AllocationContext> contexts = new ArrayList<>();
-    private final Map<ResourceContainer, List<AllocationContext>> containerToContexts = new HashMap<>();
-    private final List<AssemblyConnector> connectors = new ArrayList<>();
-    private String linkToSystem;
-
-    private final String diagramText;
-
-    public PcmAllocationDiagramGenerator(final Allocation allocation) {
-        diagramText = getDiagramText(allocation);
-    }
-
-    public String getDiagramText() {
-        return diagramText;
-    }
-
-    private String getDiagramText(final Allocation allocation) {
-
-        for (AllocationContext context : allocation.getAllocationContexts_Allocation()) {
-            contexts.add(context);
-            ResourceContainer container = context.getResourceContainer_AllocationContext();
-            if (containerToContexts.containsKey(container)) {
-                containerToContexts.get(container)
-                    .add(context);
-            } else {
-                List<AllocationContext> contextsToMap = new ArrayList<>();
-                contextsToMap.add(context);
-                containerToContexts.put(container, contextsToMap);
-            }
-        }
-        for (Connector connector : allocation.getSystem_Allocation()
-            .getConnectors__ComposedStructure()) {
-            if (connector instanceof AssemblyConnector) {
-                connectors.add((AssemblyConnector) connector);
-            }
-        }
-        linkToSystem = Helper.getEObjectHyperlink(allocation.getSystem_Allocation());
-
-        final String result = contexts.size() > 0 ? getAllocationDiagramText() : null;
-        return result;
-    }
-
-    private String getAllocationDiagramText() {
-        final StringBuilder buffer = new StringBuilder();
-
-        buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
+    private static void appendContainerEnd(final StringBuilder buffer) {
+        buffer.append(CURLY_CLOSING_BRACKET);
         buffer.append(NEWLINE);
-
-        for (ResourceContainer container : containerToContexts.keySet()) {
-            appendContainerStart(container, buffer);
-            for (AllocationContext context : containerToContexts.get(container)) {
-                appendAllocationContext(context, buffer);
-
-            }
-            appendContainerEnd(container, buffer);
-        }
-
-        for (AssemblyConnector connector : connectors) {
-            appendAssemblyConnector(connector, buffer);
-        }
-        return buffer.toString();
     }
 
     // example: node System1 {
-    protected void appendContainerStart(final ResourceContainer container, StringBuilder buffer) {
+    private static void appendContainerStart(final ResourceContainer container, final StringBuilder buffer) {
         buffer.append(CONTAINER_KEYWORD);
         buffer.append(SPACE);
         buffer.append(container.getEntityName());
@@ -96,8 +39,21 @@ public class PcmAllocationDiagramGenerator {
         buffer.append(NEWLINE);
     }
 
+    private final List<AllocationContext> contexts = new ArrayList<>();
+    private final Map<ResourceContainer, List<AllocationContext>> containerToContexts = new HashMap<>();
+
+    private final List<AssemblyConnector> connectors = new ArrayList<>();
+
+    private String linkToSystem;
+
+    private final String diagramText;
+
+    public PcmAllocationDiagramGenerator(final Allocation allocation) {
+        diagramText = getDiagramText(allocation);
+    }
+
     // example: [DataAccess]
-    protected void appendAllocationContext(final AllocationContext context, StringBuilder buffer) {
+    private void appendAllocationContext(final AllocationContext context, final StringBuilder buffer) {
         buffer.append(COMPONENT_START);
         buffer.append(context.getEntityName());
         buffer.append(COMPONENT_END);
@@ -108,18 +64,13 @@ public class PcmAllocationDiagramGenerator {
         buffer.append(NEWLINE);
     }
 
-    private void appendContainerEnd(final ResourceContainer container, StringBuilder buffer) {
-        buffer.append(CURLY_CLOSING_BRACKET);
-        buffer.append(NEWLINE);
-    }
-
     // example: [Access Control] -(0- [Web Server] : REST
-    protected void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
+    private void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
         buffer.append(COMPONENT_START);
 
         // requiring context
-        AssemblyContext reqAssemblyContext = connector.getRequiringAssemblyContext_AssemblyConnector();
-        AllocationContext reqAllocContext = assemblyToAllocationContext(reqAssemblyContext);
+        final AssemblyContext reqAssemblyContext = connector.getRequiringAssemblyContext_AssemblyConnector();
+        final AllocationContext reqAllocContext = assemblyToAllocationContext(reqAssemblyContext);
         buffer.append(reqAllocContext.getEntityName());
         buffer.append(COMPONENT_END);
 
@@ -128,24 +79,68 @@ public class PcmAllocationDiagramGenerator {
         buffer.append(COMPONENT_START);
 
         // providing context
-        AssemblyContext provAssemblyContext = connector.getProvidingAssemblyContext_AssemblyConnector();
-        AllocationContext provAllocContext = assemblyToAllocationContext(provAssemblyContext);
+        final AssemblyContext provAssemblyContext = connector.getProvidingAssemblyContext_AssemblyConnector();
+        final AllocationContext provAllocContext = assemblyToAllocationContext(provAssemblyContext);
         buffer.append(provAllocContext.getEntityName());
         buffer.append(COMPONENT_END);
 
         buffer.append(COLON);
-        buffer.append(connector.getProvidedRole_AssemblyConnector()
-            .getEntityName());
+        buffer.append(connector.getProvidedRole_AssemblyConnector().getEntityName());
         buffer.append(NEWLINE);
     }
 
     // helper method
-    protected AllocationContext assemblyToAllocationContext(AssemblyContext assemblyContext) {
-        return contexts.stream()
-            .filter(x -> x.getAssemblyContext_AllocationContext()
-                .equals(assemblyContext))
-            .collect(Collectors.toList())
-            .get(0);
+    private AllocationContext assemblyToAllocationContext(final AssemblyContext assemblyContext) {
+        return contexts.stream().filter(x -> x.getAssemblyContext_AllocationContext().equals(assemblyContext))
+                .collect(Collectors.toList()).get(0);
 
+    }
+
+    private String getAllocationDiagramText() {
+        final StringBuilder buffer = new StringBuilder();
+
+        buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
+        buffer.append(NEWLINE);
+
+        for (final ResourceContainer container : containerToContexts.keySet()) {
+            appendContainerStart(container, buffer);
+            for (final AllocationContext context : containerToContexts.get(container)) {
+                appendAllocationContext(context, buffer);
+
+            }
+            appendContainerEnd(buffer);
+        }
+
+        for (final AssemblyConnector connector : connectors) {
+            appendAssemblyConnector(connector, buffer);
+        }
+        return buffer.toString();
+    }
+
+    public String getDiagramText() {
+        return diagramText;
+    }
+
+    private String getDiagramText(final Allocation allocation) {
+
+        for (final AllocationContext context : allocation.getAllocationContexts_Allocation()) {
+            contexts.add(context);
+            final ResourceContainer container = context.getResourceContainer_AllocationContext();
+            if (containerToContexts.containsKey(container)) {
+                containerToContexts.get(container).add(context);
+            } else {
+                final List<AllocationContext> contextsToMap = new ArrayList<>();
+                contextsToMap.add(context);
+                containerToContexts.put(container, contextsToMap);
+            }
+        }
+        for (final Connector connector : allocation.getSystem_Allocation().getConnectors__ComposedStructure()) {
+            if (connector instanceof AssemblyConnector) {
+                connectors.add((AssemblyConnector) connector);
+            }
+        }
+        linkToSystem = Helper.getEObjectHyperlink(allocation.getSystem_Allocation());
+
+        return contexts.size() > 0 ? getAllocationDiagramText() : null;
     }
 }
