@@ -25,7 +25,7 @@ jobs:
           mv beamer-master/logos/kitlogo_de_rgb.pdf logos/kitlogo_de_rgb.pdf
           mv beamer-master/logos/kitlogo_en_rgb.pdf logos/kitlogo_en_rgb.pdf
       - name: Compile document
-        uses: xu-cheng/latex-action@v2
+        uses: xu-cheng/latex-action@v3
         with:
           root_file: docs/presentation/presentation.tex
           work_in_root_file_dir: true
