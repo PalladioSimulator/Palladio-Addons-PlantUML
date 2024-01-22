@@ -24,8 +24,85 @@ public class PcmSystemDiagramGenerator {
     private static String SYSTEM_NAME = "System";
     private static String COMPONENT_KEYWORD = "component";
 
+    // example: [Access Control] -(0- [Web Server] : REST
+    private static void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
+        buffer.append(COMPONENT_START);
+        // requiring context
+        buffer.append(connector.getRequiringAssemblyContext_AssemblyConnector().getEntityName());
+        buffer.append(COMPONENT_END);
+
+        buffer.append(PROVIDES_REQUIRES_LINK);
+
+        buffer.append(COMPONENT_START);
+        // providing context
+        buffer.append(connector.getProvidingAssemblyContext_AssemblyConnector().getEntityName());
+        buffer.append(COMPONENT_END);
+
+        buffer.append(COLON);
+        buffer.append(connector.getProvidedRole_AssemblyConnector().getEntityName());
+        buffer.append(NEWLINE);
+    }
+
+    // example: [FileStorage] [[link]]
+    private static void appendAssemblyContext(final AssemblyContext context, final String linkToRepository,
+            final StringBuilder buffer) {
+        buffer.append(COMPONENT_START);
+        buffer.append(context.getEntityName());
+        buffer.append(COMPONENT_END);
+        buffer.append(SPACE);
+        buffer.append(LINK_START);
+        buffer.append(linkToRepository);
+        buffer.append(LINK_END);
+        buffer.append(NEWLINE);
+    }
+
+    private static void appendComponentEnd(final StringBuilder buffer) {
+        buffer.append(CURLY_CLOSING_BRACKET);
+        buffer.append(NEWLINE);
+    }
+
+    // example: component System {
+    private static void appendComponentStart(final String name, final StringBuilder buffer) {
+        buffer.append(COMPONENT_KEYWORD);
+        buffer.append(SPACE);
+        buffer.append(name);
+        buffer.append(SPACE);
+        buffer.append(CURLY_OPENING_BRACKET);
+        buffer.append(NEWLINE);
+
+    }
+
+    // example:
+    // DataAccess - IMedia
+    // IMedia - [Access Control]
+    private static void appendProvidedDelConnector(final ProvidedDelegationConnector connector,
+            final StringBuilder buffer) {
+        buffer.append(connector.getOuterProvidedRole_ProvidedDelegationConnector().getEntityName());
+        buffer.append(SIMPLE_LINK);
+        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector().getEntityName());
+        buffer.append(NEWLINE);
+        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector().getEntityName());
+        buffer.append(SIMPLE_LINK);
+        buffer.append(COMPONENT_START);
+        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector().getProvidingEntity_ProvidedRole()
+                .getEntityName());
+        buffer.append(COMPONENT_END);
+        buffer.append(NEWLINE);
+    }
+
+    // example: () DataAccess
+    private static void appendProvidedRole(final ProvidedRole role, final StringBuilder buffer) {
+        buffer.append(INTERFACE_START);
+        buffer.append(INTERFACE_END);
+        buffer.append(SPACE);
+        buffer.append(role.getEntityName());
+        buffer.append(NEWLINE);
+    }
+
     private final List<AssemblyContext> contexts = new ArrayList<>();
+
     private final List<Connector> connectors = new ArrayList<>();
+
     private final List<ProvidedRole> providedRoles = new ArrayList<>();
 
     private final String diagramText;
@@ -39,23 +116,16 @@ public class PcmSystemDiagramGenerator {
     }
 
     private String getDiagramText(final System system) {
-        for (AssemblyContext context : system.getAssemblyContexts__ComposedStructure()) {
-            contexts.add(context);
-        }
+        contexts.addAll(system.getAssemblyContexts__ComposedStructure());
 
-        for (Connector connector : system.getConnectors__ComposedStructure()) {
-            connectors.add(connector);
-        }
+        connectors.addAll(system.getConnectors__ComposedStructure());
 
-        for (ProvidedRole role : system.getProvidedRoles_InterfaceProvidingEntity()) {
-            providedRoles.add(role);
-        }
+        providedRoles.addAll(system.getProvidedRoles_InterfaceProvidingEntity());
 
-        final String result = contexts.size() > 0 ? getSystemDiagramText() : null;
-        return result;
+        return contexts.size() > 0 ? getSystemDiagramText() : null;
     }
 
-    protected String getSystemDiagramText() {
+    private String getSystemDiagramText() {
         final StringBuilder buffer = new StringBuilder();
 
         buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
@@ -77,93 +147,12 @@ public class PcmSystemDiagramGenerator {
 
         // for the contexts without connectors
         for (final AssemblyContext context : contexts) {
-            String linkToRepository = Helper.getEObjectHyperlink(context.getEncapsulatedComponent__AssemblyContext()
-                .getRepository__RepositoryComponent());
+            final String linkToRepository = Helper.getEObjectHyperlink(
+                    context.getEncapsulatedComponent__AssemblyContext().getRepository__RepositoryComponent());
             appendAssemblyContext(context, linkToRepository, buffer);
         }
 
         appendComponentEnd(buffer);
         return buffer.toString();
-    }
-
-    // example: () DataAccess
-    protected void appendProvidedRole(final ProvidedRole role, final StringBuilder buffer) {
-        buffer.append(INTERFACE_START);
-        buffer.append(INTERFACE_END);
-        buffer.append(SPACE);
-        buffer.append(role.getEntityName());
-        buffer.append(NEWLINE);
-    }
-
-    // example: component System {
-    protected void appendComponentStart(final String name, final StringBuilder buffer) {
-        buffer.append(COMPONENT_KEYWORD);
-        buffer.append(SPACE);
-        buffer.append(name);
-        buffer.append(SPACE);
-        buffer.append(CURLY_OPENING_BRACKET);
-        buffer.append(NEWLINE);
-
-    }
-
-    // example: [FileStorage] [[link]]
-    protected void appendAssemblyContext(final AssemblyContext context, final String linkToRepository,
-            final StringBuilder buffer) {
-        buffer.append(COMPONENT_START);
-        buffer.append(context.getEntityName());
-        buffer.append(COMPONENT_END);
-        buffer.append(SPACE);
-        buffer.append(LINK_START);
-        buffer.append(linkToRepository);
-        buffer.append(LINK_END);
-        buffer.append(NEWLINE);
-    }
-
-    // example: [Access Control] -(0- [Web Server] : REST
-    protected void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
-        buffer.append(COMPONENT_START);
-        // requiring context
-        buffer.append(connector.getRequiringAssemblyContext_AssemblyConnector()
-            .getEntityName());
-        buffer.append(COMPONENT_END);
-
-        buffer.append(PROVIDES_REQUIRES_LINK);
-
-        buffer.append(COMPONENT_START);
-        // providing context
-        buffer.append(connector.getProvidingAssemblyContext_AssemblyConnector()
-            .getEntityName());
-        buffer.append(COMPONENT_END);
-
-        buffer.append(COLON);
-        buffer.append(connector.getProvidedRole_AssemblyConnector()
-            .getEntityName());
-        buffer.append(NEWLINE);
-    }
-
-    // example:
-    // DataAccess - IMedia
-    // IMedia - [Access Control]
-    protected void appendProvidedDelConnector(final ProvidedDelegationConnector connector, final StringBuilder buffer) {
-        buffer.append(connector.getOuterProvidedRole_ProvidedDelegationConnector()
-            .getEntityName());
-        buffer.append(SIMPLE_LINK);
-        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector()
-            .getEntityName());
-        buffer.append(NEWLINE);
-        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector()
-            .getEntityName());
-        buffer.append(SIMPLE_LINK);
-        buffer.append(COMPONENT_START);
-        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector()
-            .getProvidingEntity_ProvidedRole()
-            .getEntityName());
-        buffer.append(COMPONENT_END);
-        buffer.append(NEWLINE);
-    }
-
-    protected void appendComponentEnd(StringBuilder buffer) {
-        buffer.append(CURLY_CLOSING_BRACKET);
-        buffer.append(NEWLINE);
     }
 }
