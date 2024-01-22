@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up template
         run: |
           cd docs/presentation
