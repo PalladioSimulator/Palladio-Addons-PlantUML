@@ -30,7 +30,7 @@ jobs:
           root_file: docs/presentation/presentation.tex
           work_in_root_file_dir: true
       - name: Upload document
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: presentation.pdf
           path: docs/presentation/presentation.pdf
