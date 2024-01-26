@@ -26,7 +26,6 @@
         <module>bundles</module>
         <module>features</module>
         <!--<module>tests</module>-->
-        <!--<module>products</module>-->
     </modules>
 
 </project>

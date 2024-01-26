@@ -7,15 +7,15 @@ import net.sourceforge.plantuml.text.AbstractDiagramIntent;
 
 public class PcmAllocationDiagramIntent extends AbstractDiagramIntent<Allocation> {
 
-    private final PcmAllocationDiagramGenerator generator;
+	private final PcmAllocationDiagramGenerator generator;
 
-    public PcmAllocationDiagramIntent(Allocation source) {
-        super(source);
-        generator = new PcmAllocationDiagramGenerator(getSource());
-    }
+	public PcmAllocationDiagramIntent(final Allocation source) {
+		super(source);
+		generator = new PcmAllocationDiagramGenerator(getSource());
+	}
 
-    @Override
-    public String getDiagramText() {
-        return generator.getDiagramText();
-    }
+	@Override
+	public String getDiagramText() {
+		return generator.get();
+	}
 }

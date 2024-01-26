@@ -7,15 +7,15 @@ import net.sourceforge.plantuml.text.AbstractDiagramIntent;
 
 public class PcmSystemDiagramIntent extends AbstractDiagramIntent<System> {
 
-    private PcmSystemDiagramGenerator generator;
+	private final PcmSystemDiagramGenerator generator;
 
-    public PcmSystemDiagramIntent(System source) {
-        super(source);
-        generator = new PcmSystemDiagramGenerator(getSource());
-    }
+	public PcmSystemDiagramIntent(final System source) {
+		super(source);
+		generator = new PcmSystemDiagramGenerator(getSource());
+	}
 
-    @Override
-    public String getDiagramText() {
-        return generator.getDiagramText();
-    }
+	@Override
+	public String getDiagramText() {
+		return generator.get();
+	}
 }
