@@ -19,46 +19,29 @@ import org.palladiosimulator.view.plantuml.generator.PcmSystemDiagramGenerator;
  * @author Sonya Voneva
  *
  */
-class SystemTest {
-
-    private static PcmSystemDiagramGenerator systemDiagramIntent;
-    private static org.palladiosimulator.pcm.system.System system;
+class SystemTest extends AbstractPlantUmlTest {
     private static String diagramText;
+    private static System system;
 
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
-        system = (System) TestUtil.loadModel("\\resources\\ScreencastMediaStore\\MediaStore-Cacheless.system");
-        systemDiagramIntent = new PcmSystemDiagramGenerator(system);
-        diagramText = systemDiagramIntent.getDiagramText();
+        system = loadSystem(getNormalizedUri("ScreencastMediaStore/MediaStore-Cacheless.system"));
+        diagramText = new PcmSystemDiagramGenerator(system).get();
     }
 
     /**
-     * Test if starting and ending tags are there
+     * Test number of assembly connectors.
      */
     @Test
-    void testTags() {
-        List<String> splittedText = Arrays.asList(diagramText.split("\n"));
-        assertTrue(splittedText.get(0)
-            .equals("@startuml")
-                && splittedText.get(splittedText.size() - 1)
-                    .equals("@enduml"));
-    }
-
-    /**
-     * Test if a provided interface exists and is connected to the rest of the diagram
-     */
-    @Test
-    void testProvidedRoleConnection() {
-        assertTrue(diagramText.contains("()"));
-        List<String> splittedText = Arrays.asList(diagramText.split("\n"));
-        for (String line : splittedText) {
-            if (line.contains("()")) {
-                List<String> splittedLine = Arrays.asList(line.split(" "));
-                assertEquals(splittedLine.size(), 2);
-                String providedInterface = splittedLine.get(1);
-                assertTrue(diagramText.contains(providedInterface + " - "));
+    void testAssemblyConnectors() {
+        int assemblyConnectors = 0;
+        final int occurrencesOfConnectorLink = AbstractPlantUmlTest.countOccurrences(diagramText, "-(0-");
+        for (final Connector connector : system.getConnectors__ComposedStructure()) {
+            if (connector instanceof AssemblyConnector) {
+                assemblyConnectors++;
             }
         }
+        assertEquals(assemblyConnectors, occurrencesOfConnectorLink);
 
     }
 
@@ -71,30 +54,43 @@ class SystemTest {
     }
 
     /**
-     * Test number of assembly connectors.
-     */
-    @Test
-    void testAssemblyConnectors() {
-        int assemblyConnectors = 0;
-        int occurrencesOfConnectorLink = TestUtil.countOccurrences(diagramText, "-(0-");
-        for (Connector connector : system.getConnectors__ComposedStructure()) {
-            if (connector instanceof AssemblyConnector) {
-                assemblyConnectors++;
-            }
-        }
-        assertEquals(assemblyConnectors, occurrencesOfConnectorLink);
-
-    }
-
-    /**
      * Test if all contexts are there.
      */
     @Test
     void testContexts() {
-        EList<AssemblyContext> contexts = system.getAssemblyContexts__ComposedStructure();
-        for (AssemblyContext context : contexts) {
+        final EList<AssemblyContext> contexts = system.getAssemblyContexts__ComposedStructure();
+        for (final AssemblyContext context : contexts) {
             assertTrue(diagramText.contains("[" + context.getEntityName() + "]"));
         }
+    }
+
+    /**
+     * Test if a provided interface exists and is connected to the rest of the
+     * diagram
+     */
+    @Test
+    void testProvidedRoleConnection() {
+        assertTrue(diagramText.contains("()"));
+        final List<String> splittedText = Arrays.asList(diagramText.split("\n"));
+        for (final String line : splittedText) {
+            if (line.contains("()")) {
+                final List<String> splittedLine = Arrays.asList(line.split(" "));
+                assertEquals(splittedLine.size(), 2);
+                final String providedInterface = splittedLine.get(1);
+                assertTrue(diagramText.contains(providedInterface + " - "));
+            }
+        }
+
+    }
+
+    /**
+     * Test if starting and ending tags are there
+     */
+    @Test
+    void testTags() {
+        final List<String> splittedText = Arrays.asList(diagramText.split("\n"));
+        assertTrue(
+                "@startuml".equals(splittedText.get(0)) && "@enduml".equals(splittedText.get(splittedText.size() - 1)));
     }
 
 }

@@ -2,6 +2,7 @@ package org.palladiosimulator.view.plantuml.generator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.palladiosimulator.pcm.core.composition.AssemblyConnector;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
@@ -10,149 +11,164 @@ import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector;
 import org.palladiosimulator.pcm.repository.ProvidedRole;
 import org.palladiosimulator.pcm.system.System;
 
-public class PcmSystemDiagramGenerator {
+public class PcmSystemDiagramGenerator implements UmlDiagramSupplier {
 
-    private static String COMPONENT_START = "[", COMPONENT_END = "]";
-    private static String LINK_START = "[[", LINK_END = "]]";
-    private static String INTERFACE_START = "(", INTERFACE_END = ")";
-    private static String CURLY_OPENING_BRACKET = "{", CURLY_CLOSING_BRACKET = "}";
-    private static String COLON = " : ";
-    private static String SIMPLE_LINK = " - ";
-    private static String PROVIDES_REQUIRES_LINK = " -(0- ";
-    private static String NEWLINE = "\n";
-    private static String SPACE = " ";
-    private static String SYSTEM_NAME = "System";
-    private static String COMPONENT_KEYWORD = "component";
+	private static String COLON = " : ";
+	private static String COMPONENT_KEYWORD = "component";
+	private static String COMPONENT_START = "[", COMPONENT_END = "]";
+	private static String CURLY_OPENING_BRACKET = "{", CURLY_CLOSING_BRACKET = "}";
+	private static String INTERFACE_START = "(", INTERFACE_END = ")";
+	private static String LINK_START = "[[", LINK_END = "]]";
+	private static String NEWLINE = "\n";
+	private static String PROVIDES_REQUIRES_LINK = " -(0- ";
+	private static String SIMPLE_LINK = " - ";
+	private static String SPACE = " ";
 
-    // example: [Access Control] -(0- [Web Server] : REST
-    private static void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
-        buffer.append(COMPONENT_START);
-        // requiring context
-        buffer.append(connector.getRequiringAssemblyContext_AssemblyConnector().getEntityName());
-        buffer.append(COMPONENT_END);
+	// example: [Access Control] -(0- [Web Server] : REST
+	private static void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_START);
+		// requiring context
+		buffer.append(
+		        UmlDiagramSupplier.escape(connector.getRequiringAssemblyContext_AssemblyConnector().getEntityName()));
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_END);
 
-        buffer.append(PROVIDES_REQUIRES_LINK);
+		buffer.append(PcmSystemDiagramGenerator.PROVIDES_REQUIRES_LINK);
 
-        buffer.append(COMPONENT_START);
-        // providing context
-        buffer.append(connector.getProvidingAssemblyContext_AssemblyConnector().getEntityName());
-        buffer.append(COMPONENT_END);
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_START);
+		// providing context
+		buffer.append(
+		        UmlDiagramSupplier.escape(connector.getProvidingAssemblyContext_AssemblyConnector().getEntityName()));
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_END);
 
-        buffer.append(COLON);
-        buffer.append(connector.getProvidedRole_AssemblyConnector().getEntityName());
-        buffer.append(NEWLINE);
-    }
+		buffer.append(PcmSystemDiagramGenerator.COLON);
+		buffer.append(UmlDiagramSupplier.escape(connector.getProvidedRole_AssemblyConnector().getEntityName()));
+		buffer.append(PcmSystemDiagramGenerator.NEWLINE);
+	}
 
-    // example: [FileStorage] [[link]]
-    private static void appendAssemblyContext(final AssemblyContext context, final String linkToRepository,
-            final StringBuilder buffer) {
-        buffer.append(COMPONENT_START);
-        buffer.append(context.getEntityName());
-        buffer.append(COMPONENT_END);
-        buffer.append(SPACE);
-        buffer.append(LINK_START);
-        buffer.append(linkToRepository);
-        buffer.append(LINK_END);
-        buffer.append(NEWLINE);
-    }
+	// example: [FileStorage] [[link]]
+	private static void appendAssemblyContext(final AssemblyContext context, final String linkToRepository,
+	        final StringBuilder buffer) {
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_START);
+		buffer.append(UmlDiagramSupplier.escape(context.getEntityName()));
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_END);
+		buffer.append(PcmSystemDiagramGenerator.SPACE);
+		buffer.append(PcmSystemDiagramGenerator.LINK_START);
+		buffer.append(linkToRepository);
+		buffer.append(PcmSystemDiagramGenerator.LINK_END);
+		buffer.append(PcmSystemDiagramGenerator.NEWLINE);
+	}
 
-    private static void appendComponentEnd(final StringBuilder buffer) {
-        buffer.append(CURLY_CLOSING_BRACKET);
-        buffer.append(NEWLINE);
-    }
+	private static void appendComponentEnd(final StringBuilder buffer) {
+		buffer.append(PcmSystemDiagramGenerator.CURLY_CLOSING_BRACKET);
+		buffer.append(PcmSystemDiagramGenerator.NEWLINE);
+	}
 
-    // example: component System {
-    private static void appendComponentStart(final String name, final StringBuilder buffer) {
-        buffer.append(COMPONENT_KEYWORD);
-        buffer.append(SPACE);
-        buffer.append(name);
-        buffer.append(SPACE);
-        buffer.append(CURLY_OPENING_BRACKET);
-        buffer.append(NEWLINE);
+	// example: component System {
+	private static void appendComponentStart(final String name, final StringBuilder buffer) {
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_KEYWORD);
+		buffer.append(PcmSystemDiagramGenerator.SPACE);
+		buffer.append(name);
+		buffer.append(PcmSystemDiagramGenerator.SPACE);
+		buffer.append(PcmSystemDiagramGenerator.CURLY_OPENING_BRACKET);
+		buffer.append(PcmSystemDiagramGenerator.NEWLINE);
 
-    }
+	}
 
-    // example:
-    // DataAccess - IMedia
-    // IMedia - [Access Control]
-    private static void appendProvidedDelConnector(final ProvidedDelegationConnector connector,
-            final StringBuilder buffer) {
-        buffer.append(connector.getOuterProvidedRole_ProvidedDelegationConnector().getEntityName());
-        buffer.append(SIMPLE_LINK);
-        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector().getEntityName());
-        buffer.append(NEWLINE);
-        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector().getEntityName());
-        buffer.append(SIMPLE_LINK);
-        buffer.append(COMPONENT_START);
-        buffer.append(connector.getInnerProvidedRole_ProvidedDelegationConnector().getProvidingEntity_ProvidedRole()
-                .getEntityName());
-        buffer.append(COMPONENT_END);
-        buffer.append(NEWLINE);
-    }
+	// example:
+	// DataAccess - IMedia
+	// IMedia - [Access Control]
+	private static void appendProvidedDelConnector(final ProvidedDelegationConnector connector,
+	        final StringBuilder buffer) {
+		buffer.append(UmlDiagramSupplier
+		        .escape(connector.getOuterProvidedRole_ProvidedDelegationConnector().getEntityName()));
+		buffer.append(PcmSystemDiagramGenerator.SIMPLE_LINK);
+		buffer.append(UmlDiagramSupplier
+		        .escape(connector.getInnerProvidedRole_ProvidedDelegationConnector().getEntityName()));
+		buffer.append(PcmSystemDiagramGenerator.NEWLINE);
+		buffer.append(UmlDiagramSupplier
+		        .escape(connector.getInnerProvidedRole_ProvidedDelegationConnector().getEntityName()));
+		buffer.append(PcmSystemDiagramGenerator.SIMPLE_LINK);
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_START);
+		buffer.append(UmlDiagramSupplier.escape(connector.getInnerProvidedRole_ProvidedDelegationConnector()
+		        .getProvidingEntity_ProvidedRole().getEntityName()));
+		buffer.append(PcmSystemDiagramGenerator.COMPONENT_END);
+		buffer.append(PcmSystemDiagramGenerator.NEWLINE);
+	}
 
-    // example: () DataAccess
-    private static void appendProvidedRole(final ProvidedRole role, final StringBuilder buffer) {
-        buffer.append(INTERFACE_START);
-        buffer.append(INTERFACE_END);
-        buffer.append(SPACE);
-        buffer.append(role.getEntityName());
-        buffer.append(NEWLINE);
-    }
+	// example: () DataAccess
+	private static void appendProvidedRole(final String role, final StringBuilder buffer) {
+		buffer.append(PcmSystemDiagramGenerator.INTERFACE_START);
+		buffer.append(PcmSystemDiagramGenerator.INTERFACE_END);
+		buffer.append(PcmSystemDiagramGenerator.SPACE);
+		buffer.append(role);
+		buffer.append(PcmSystemDiagramGenerator.NEWLINE);
+	}
 
-    private final List<AssemblyContext> contexts = new ArrayList<>();
+	private List<Connector> connectors = new ArrayList<>();
 
-    private final List<Connector> connectors = new ArrayList<>();
+	private List<AssemblyContext> contexts = new ArrayList<>();
 
-    private final List<ProvidedRole> providedRoles = new ArrayList<>();
+	private final String diagramText;
 
-    private final String diagramText;
+	private List<String> providedRoles = new ArrayList<>();
 
-    public PcmSystemDiagramGenerator(final System system) {
-        diagramText = getDiagramText(system);
-    }
+	private final String systemName;
 
-    public String getDiagramText() {
-        return diagramText;
-    }
+	public PcmSystemDiagramGenerator(final System system) {
+		diagramText = generateDiagramText(Objects.requireNonNull(system));
+		systemName = system.getEntityName() != null ? system.getEntityName() : "System123";
+	}
 
-    private String getDiagramText(final System system) {
-        contexts.addAll(system.getAssemblyContexts__ComposedStructure());
+	private String generateDiagramText(final System system) {
+		contexts = system.getAssemblyContexts__ComposedStructure().stream()
+		        .filter(c -> (c != null) && (c.getEntityName() != null) && !c.getEntityName().isBlank()).distinct()
+		        .sorted(UmlDiagramSupplier.byName()).toList();
 
-        connectors.addAll(system.getConnectors__ComposedStructure());
+		connectors = system.getConnectors__ComposedStructure().stream()
+		        .filter(c -> (c != null) && (c.getEntityName() != null) && !c.getEntityName().isBlank()).distinct()
+		        .sorted(UmlDiagramSupplier.byName()).toList();
 
-        providedRoles.addAll(system.getProvidedRoles_InterfaceProvidingEntity());
+		providedRoles = system.getProvidedRoles_InterfaceProvidingEntity().stream().filter(r -> r != null)
+		        .map(ProvidedRole::getEntityName).filter(n -> (n != null) && !n.isBlank())
+		        .map(UmlDiagramSupplier::escape).distinct().sorted().toList();
 
-        return contexts.size() > 0 ? getSystemDiagramText() : null;
-    }
+		return contexts.size() > 0 ? getSystemDiagramText() : null;
+	}
 
-    private String getSystemDiagramText() {
-        final StringBuilder buffer = new StringBuilder();
+	@Override
+	public String get() {
+		return diagramText;
+	}
 
-        buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
-        buffer.append(NEWLINE);
+	private String getSystemDiagramText() {
+		final StringBuilder buffer = new StringBuilder();
 
-        for (final ProvidedRole role : providedRoles) {
-            appendProvidedRole(role, buffer);
-        }
+		buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
+		buffer.append(PcmSystemDiagramGenerator.NEWLINE);
 
-        appendComponentStart(SYSTEM_NAME, buffer);
+		for (final String role : providedRoles) {
+			PcmSystemDiagramGenerator.appendProvidedRole(role, buffer);
+		}
 
-        for (final Connector connector : connectors) {
-            if (connector instanceof AssemblyConnector) {
-                appendAssemblyConnector((AssemblyConnector) connector, buffer);
-            } else if (connector instanceof ProvidedDelegationConnector) {
-                appendProvidedDelConnector((ProvidedDelegationConnector) connector, buffer);
-            }
-        }
+		PcmSystemDiagramGenerator.appendComponentStart(systemName, buffer);
 
-        // for the contexts without connectors
-        for (final AssemblyContext context : contexts) {
-            final String linkToRepository = Helper.getEObjectHyperlink(
-                    context.getEncapsulatedComponent__AssemblyContext().getRepository__RepositoryComponent());
-            appendAssemblyContext(context, linkToRepository, buffer);
-        }
+		for (final Connector connector : connectors) {
+			if (connector instanceof AssemblyConnector) {
+				PcmSystemDiagramGenerator.appendAssemblyConnector((AssemblyConnector) connector, buffer);
+			} else if (connector instanceof ProvidedDelegationConnector) {
+				PcmSystemDiagramGenerator.appendProvidedDelConnector((ProvidedDelegationConnector) connector, buffer);
+			}
+		}
 
-        appendComponentEnd(buffer);
-        return buffer.toString();
-    }
+		// for the contexts without connectors
+		for (final AssemblyContext context : contexts) {
+			final String linkToRepository = UmlDiagramSupplier.getEObjectHyperlink(
+			        context.getEncapsulatedComponent__AssemblyContext().getRepository__RepositoryComponent());
+			PcmSystemDiagramGenerator.appendAssemblyContext(context, linkToRepository, buffer);
+		}
+
+		PcmSystemDiagramGenerator.appendComponentEnd(buffer);
+		return buffer.toString();
+	}
+
 }

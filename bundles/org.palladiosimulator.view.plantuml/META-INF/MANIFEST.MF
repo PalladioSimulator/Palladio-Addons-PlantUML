@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Ecore PlantUML mapping
 Bundle-SymbolicName: org.palladiosimulator.view.plantuml;singleton:=true
 Bundle-Version: 1.1.27.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.palladiosimulator.view.plantuml
 Import-Package: net.sourceforge.plantuml.eclipse,
  net.sourceforge.plantuml.eclipse.utils,
@@ -24,5 +24,5 @@ Import-Package: net.sourceforge.plantuml.eclipse,
  org.palladiosimulator.pcm
 Bundle-ClassPath: .
 Require-Bundle: org.palladiosimulator.pcm,
- org.palladiosimulator.view.plantuml.generator;bundle-version="1.1.27"
+ org.palladiosimulator.view.plantuml.generator
 Automatic-Module-Name: org.palladiosimulator.view.plantuml

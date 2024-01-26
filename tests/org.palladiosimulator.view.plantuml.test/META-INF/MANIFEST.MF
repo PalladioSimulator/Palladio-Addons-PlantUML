@@ -1,13 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Test
-Bundle-SymbolicName: org.palladiosimulator.view.plantuml.test
+Bundle-Name: org.palladiosimulator.view.plantuml.test
+Bundle-SymbolicName: org.palladiosimulator.view.plantuml.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.view.plantuml.test
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
- org.palladiosimulator.pcm,
- org.apache.log4j;bundle-version="1.2.15",
- org.eclipse.swt;bundle-version="3.117.0",
+ org.apache.log4j,
+ org.eclipse.swt,
  junit-jupiter-api,
- org.palladiosimulator.view.plantuml.generator
+ org.palladiosimulator.view.plantuml.generator,
+ org.palladiosimulator.pcm,
+ org.palladiosimulator.pcm.resources,
+ org.palladiosimulator.commons.stoex,
+ de.uka.ipd.sdq.stoex.analyser

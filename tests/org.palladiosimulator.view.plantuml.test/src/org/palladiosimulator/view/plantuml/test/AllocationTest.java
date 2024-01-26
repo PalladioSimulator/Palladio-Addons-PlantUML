@@ -23,9 +23,7 @@ import org.palladiosimulator.view.plantuml.generator.PcmAllocationDiagramGenerat
  * @author Sonya Voneva
  *
  */
-class AllocationTest {
-
-    private static PcmAllocationDiagramGenerator allocationDiagramGenerator;
+class AllocationTest extends AbstractPlantUmlTest {
     private static Allocation allocation;
     private static String diagramText;
 
@@ -34,39 +32,8 @@ class AllocationTest {
      */
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
-        allocation = (Allocation) TestUtil
-            .loadModel("\\resources\\ScreencastMediaStore\\MediaStore-Cacheless.allocation");
-        allocationDiagramGenerator = new PcmAllocationDiagramGenerator(allocation);
-        diagramText = allocationDiagramGenerator.getDiagramText();
-    }
-
-    /**
-     * Test if starting and ending tags are there
-     */
-    @Test
-    void testTags() {
-        List<String> splittedText = Arrays.asList(diagramText.split("\n"));
-        assertTrue(splittedText.get(0)
-            .equals("@startuml")
-                && splittedText.get(splittedText.size() - 1)
-                    .equals("@enduml"));
-    }
-
-    /**
-     * Test if number of containers is correct
-     */
-    @Test
-    void testContainers() {
-        EList<AllocationContext> contexts = allocation.getAllocationContexts_Allocation();
-        Set<ResourceContainer> containers = new HashSet<>();
-        int occurrencesOfContainerKeyword = TestUtil.countOccurrences(diagramText, "node");
-
-        for (AllocationContext context : contexts) {
-            ResourceContainer container = context.getResourceContainer_AllocationContext();
-            assertNotNull(container);
-            containers.add(container);
-        }
-        assertEquals(occurrencesOfContainerKeyword, containers.size());
+        allocation = loadAllocation(getNormalizedUri("ScreencastMediaStore/MediaStore-Cacheless.allocation"));
+        diagramText = new PcmAllocationDiagramGenerator(allocation).get();
     }
 
     /**
@@ -75,15 +42,41 @@ class AllocationTest {
     @Test
     void testAssemblyConnectors() {
         int assemblyConnectors = 0;
-        int occurrencesOfConnectorLink = TestUtil.countOccurrences(diagramText, "-(0-");
-        for (Connector connector : allocation.getSystem_Allocation()
-            .getConnectors__ComposedStructure()) {
+        final int occurrencesOfConnectorLink = AbstractPlantUmlTest.countOccurrences(diagramText, "-(0-");
+        for (final Connector connector : allocation.getSystem_Allocation().getConnectors__ComposedStructure()) {
             if (connector instanceof AssemblyConnector) {
                 assemblyConnectors++;
             }
         }
         assertEquals(assemblyConnectors, occurrencesOfConnectorLink);
 
+    }
+
+    /**
+     * Test if number of containers is correct
+     */
+    @Test
+    void testContainers() {
+        final EList<AllocationContext> contexts = allocation.getAllocationContexts_Allocation();
+        final Set<ResourceContainer> containers = new HashSet<>();
+        final int occurrencesOfContainerKeyword = AbstractPlantUmlTest.countOccurrences(diagramText, "node");
+
+        for (final AllocationContext context : contexts) {
+            final ResourceContainer container = context.getResourceContainer_AllocationContext();
+            assertNotNull(container);
+            containers.add(container);
+        }
+        assertEquals(occurrencesOfContainerKeyword, containers.size());
+    }
+
+    /**
+     * Test if starting and ending tags are there
+     */
+    @Test
+    void testTags() {
+        final List<String> splittedText = Arrays.asList(diagramText.split("\n"));
+        assertTrue(
+                "@startuml".equals(splittedText.get(0)) && "@enduml".equals(splittedText.get(splittedText.size() - 1)));
     }
 
 }

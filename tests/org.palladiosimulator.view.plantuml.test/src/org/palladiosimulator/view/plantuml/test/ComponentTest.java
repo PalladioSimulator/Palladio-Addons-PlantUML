@@ -1,6 +1,7 @@
 package org.palladiosimulator.view.plantuml.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -20,60 +21,15 @@ import org.palladiosimulator.view.plantuml.generator.PcmComponentDiagramGenerato
  * @author Sonya Voneva
  *
  */
-class ComponentTest {
+class ComponentTest extends AbstractPlantUmlTest {
 
-    private static PcmComponentDiagramGenerator componentDiagramIntent;
-
-    private static Repository repository;
     private static String diagramText;
+    private static Repository repository;
 
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
-        repository = (Repository) TestUtil.loadModel("\\resources\\ScreencastMediaStore\\MediaStore.repository");
-        componentDiagramIntent = new PcmComponentDiagramGenerator(repository);
-        diagramText = componentDiagramIntent.getDiagramText();
-    }
-
-    /**
-     * Test if starting and ending tags are there
-     */
-    @Test
-    void testTags() {
-        List<String> splittedText = Arrays.asList(diagramText.split("\n"));
-        assertTrue(splittedText.get(0)
-            .equals("@startuml")
-                && splittedText.get(splittedText.size() - 1)
-                    .equals("@enduml"));
-    }
-
-    /**
-     * Test if all providing roles are in the diagram text
-     */
-    @Test
-    void testProvidingRoles() {
-        EList<RepositoryComponent> components = repository.getComponents__Repository();
-        EList<ProvidedRole> provRoles = new BasicEList<>();
-        for (RepositoryComponent component : components) {
-            provRoles.addAll(component.getProvidedRoles_InterfaceProvidingEntity());
-        }
-        int occurrencesInText = TestUtil.countOccurrences(diagramText, "-");
-        assertEquals(occurrencesInText, provRoles.size());
-
-    }
-
-    /**
-     * Test if all requiring roles are in the diagram text
-     */
-    @Test
-    void testRequiringRoles() {
-        EList<RepositoryComponent> components = repository.getComponents__Repository();
-        EList<RequiredRole> reqRoles = new BasicEList<>();
-        for (RepositoryComponent component : components) {
-            reqRoles.addAll(component.getRequiredRoles_InterfaceRequiringEntity());
-        }
-        int occurrencesInText = TestUtil.countOccurrences(diagramText, "requires");
-        assertEquals(occurrencesInText, reqRoles.size());
-
+        repository = loadRepository(getNormalizedUri("ScreencastMediaStore/MediaStore.repository"));
+        diagramText = new PcmComponentDiagramGenerator(repository).get();
     }
 
     /**
@@ -81,10 +37,59 @@ class ComponentTest {
      */
     @Test
     void testComponents() {
-        EList<RepositoryComponent> components = repository.getComponents__Repository();
-        for (RepositoryComponent component : components) {
+        final EList<RepositoryComponent> components = repository.getComponents__Repository();
+        for (final RepositoryComponent component : components) {
             assertTrue(diagramText.contains("[" + component.getEntityName() + "]"));
         }
+    }
+
+    /**
+     * Test if all providing roles are in the diagram text
+     */
+    @Test
+    void testProvidingRoles() {
+        final EList<RepositoryComponent> components = repository.getComponents__Repository();
+        final EList<ProvidedRole> provRoles = new BasicEList<>();
+        for (final RepositoryComponent component : components) {
+            provRoles.addAll(component.getProvidedRoles_InterfaceProvidingEntity());
+        }
+        final int occurrencesInText = AbstractPlantUmlTest.countOccurrences(diagramText, "-");
+        assertEquals(occurrencesInText, provRoles.size());
+
+    }
+
+    /**
+     * Test if the Repository was loaded an the diagram text was generated
+     */
+    @Test
+    void testRepository() {
+        assertNotNull(repository);
+        assertNotNull(diagramText);
+    }
+
+    /**
+     * Test if all requiring roles are in the diagram text
+     */
+    @Test
+    void testRequiringRoles() {
+        final EList<RepositoryComponent> components = repository.getComponents__Repository();
+        final EList<RequiredRole> reqRoles = new BasicEList<>();
+        for (final RepositoryComponent component : components) {
+            reqRoles.addAll(component.getRequiredRoles_InterfaceRequiringEntity());
+        }
+        final int occurrencesInText = AbstractPlantUmlTest.countOccurrences(diagramText, "requires");
+        assertEquals(occurrencesInText, reqRoles.size());
+
+    }
+
+    /**
+     * Test if starting and ending tags are there
+     */
+    @Test
+    void testTags() {
+        final List<String> splittedText = Arrays.asList(diagramText.split("\n"));
+        assertTrue(
+                "@startuml".equals(splittedText.get(0)) && "@enduml".equals(splittedText.get(splittedText.size() - 1)));
     }
 
 }
