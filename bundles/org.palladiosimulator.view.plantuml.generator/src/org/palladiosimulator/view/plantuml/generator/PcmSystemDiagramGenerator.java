@@ -106,8 +106,8 @@ public class PcmSystemDiagramGenerator implements UmlDiagramSupplier {
 	// DataAccess - IMedia
 	// IMedia - [Access Control]
 	private void appendProvidedDelConnector(final ProvidedDelegationConnector connector) {
-		final String innerProvidedRole = UmlDiagramSupplier
-		        .escape(connector.getInnerProvidedRole_ProvidedDelegationConnector().getEntityName());
+		final String innerProvidedRole = escape(
+		        connector.getInnerProvidedRole_ProvidedDelegationConnector().getEntityName());
 		InterfaceProvidingEntity providingEntity = connector.getInnerProvidedRole_ProvidedDelegationConnector()
 		        .getProvidingEntity_ProvidedRole();
 		if (providingEntity instanceof final CompositeComponent composite) {
@@ -115,11 +115,11 @@ public class PcmSystemDiagramGenerator implements UmlDiagramSupplier {
 			        .filter(ProvidedDelegationConnector.class::isInstance).map(ProvidedDelegationConnector.class::cast)
 			        .filter(c -> (c != null) && (c.getEntityName() != null) && !c.getEntityName().isBlank()).distinct()
 			        .sorted(byName())
-			        .filter(c -> (UmlDiagramSupplier
-			                .escape(c.getOuterProvidedRole_ProvidedDelegationConnector().getEntityName())
+			        .filter(c -> (escape(c.getOuterProvidedRole_ProvidedDelegationConnector().getEntityName())
 			                .equals(innerProvidedRole)))
 			        .findFirst().map(ProvidedDelegationConnector::getAssemblyContext_ProvidedDelegationConnector)
-			        .map(AssemblyContext::getEncapsulatedComponent__AssemblyContext).get();
+			        .map(AssemblyContext::getEncapsulatedComponent__AssemblyContext)
+			        .orElse((CompositeComponent) providingEntity);
 		}
 
 		if (components.contains(providingEntity)) {
@@ -128,8 +128,7 @@ public class PcmSystemDiagramGenerator implements UmlDiagramSupplier {
 			builder.append(innerProvidedRole);
 			builder.append(NEWLINE);
 
-			builder.append(UmlDiagramSupplier
-			        .escape(connector.getOuterProvidedRole_ProvidedDelegationConnector().getEntityName()));
+			builder.append(escape(connector.getOuterProvidedRole_ProvidedDelegationConnector().getEntityName()));
 			builder.append(SIMPLE_LINK);
 			builder.append(innerProvidedRole);
 			builder.append(NEWLINE);
