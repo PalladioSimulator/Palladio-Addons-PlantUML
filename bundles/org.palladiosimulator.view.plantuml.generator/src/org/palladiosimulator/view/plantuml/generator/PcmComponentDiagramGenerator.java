@@ -1,5 +1,8 @@
 package org.palladiosimulator.view.plantuml.generator;
 
+import static org.palladiosimulator.view.plantuml.generator.UmlDiagramSupplier.byName;
+import static org.palladiosimulator.view.plantuml.generator.UmlDiagramSupplier.escape;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,9 +48,9 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 	private static final String SIMPLE_LINK = "--", REQUIRES_LINK = "..>", INTERNAL_REQUIRES_LINK = "..";
 
 	private static void appendComponent(final BasicComponent component, final StringBuilder buffer) {
-		buffer.append(PcmComponentDiagramGenerator.COMPONENT_START);
-		buffer.append(UmlDiagramSupplier.escape(component.getEntityName()));
-		buffer.append(PcmComponentDiagramGenerator.COMPONENT_END);
+		buffer.append(COMPONENT_START);
+		buffer.append(escape(component.getEntityName()));
+		buffer.append(COMPONENT_END);
 	}
 
 	private static void appendConnector(final AssemblyConnector connector, final StringBuilder buffer) {
@@ -57,11 +60,11 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 		// TODO: Currently assumes non-nested components.
 		PcmComponentDiagramGenerator
 		        .appendComponent((BasicComponent) requiringContext.getEncapsulatedComponent__AssemblyContext(), buffer);
-		buffer.append(PcmComponentDiagramGenerator.REQUIRES_LINK);
+		buffer.append(REQUIRES_LINK);
 		PcmComponentDiagramGenerator
 		        .appendComponent((BasicComponent) providingContext.getEncapsulatedComponent__AssemblyContext(), buffer);
-		buffer.append(PcmComponentDiagramGenerator.REQUIRES_LABEL);
-		buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+		buffer.append(REQUIRES_LABEL);
+		buffer.append(NEWLINE);
 	}
 
 	private final List<BasicComponent> basicComponents = new ArrayList<>();
@@ -91,28 +94,24 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 			final Set<ProvidedRole> connectedProvisions = component.getConnectors__ComposedStructure().stream()
 			        .filter(AssemblyConnector.class::isInstance).map(AssemblyConnector.class::cast)
 			        .map(AssemblyConnector::getProvidedRole_AssemblyConnector)
-			        .sorted((a, b) -> UmlDiagramSupplier
-			                .escape(a.getProvidedInterface__OperationProvidedRole().getEntityName())
-			                .compareTo(UmlDiagramSupplier
-			                        .escape(b.getProvidedInterface__OperationProvidedRole().getEntityName())))
+			        .sorted((a, b) -> escape(a.getProvidedInterface__OperationProvidedRole().getEntityName())
+			                .compareTo(escape(b.getProvidedInterface__OperationProvidedRole().getEntityName())))
 			        .collect(Collectors.toSet());
 
 			final Set<RequiredRole> connectedRequirements = component.getConnectors__ComposedStructure().stream()
 			        .filter(AssemblyConnector.class::isInstance).map(AssemblyConnector.class::cast)
 			        .map(AssemblyConnector::getRequiredRole_AssemblyConnector)
-			        .sorted((a, b) -> UmlDiagramSupplier
-			                .escape(a.getRequiredInterface__OperationRequiredRole().getEntityName())
-			                .compareTo(UmlDiagramSupplier
-			                        .escape(b.getRequiredInterface__OperationRequiredRole().getEntityName())))
+			        .sorted((a, b) -> escape(a.getRequiredInterface__OperationRequiredRole().getEntityName())
+			                .compareTo(escape(b.getRequiredInterface__OperationRequiredRole().getEntityName())))
 			        .collect(Collectors.toSet());
 
 			final EList<ProvidedRole> innerProvisions = innerComponent.getProvidedRoles_InterfaceProvidingEntity();
 			innerProvisions.removeAll(connectedProvisions);
-			ECollections.sort(innerProvisions, UmlDiagramSupplier.byName());
+			ECollections.sort(innerProvisions, byName());
 
 			final EList<RequiredRole> innerRequirements = innerComponent.getRequiredRoles_InterfaceRequiringEntity();
 			innerRequirements.removeAll(connectedRequirements);
-			ECollections.sort(innerRequirements, UmlDiagramSupplier.byName());
+			ECollections.sort(innerRequirements, byName());
 
 			providedRoles.put(innerComponent, innerProvisions);
 			requiredRoles.put(innerComponent, innerRequirements);
@@ -120,37 +119,36 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 	}
 
 	private void appendComponent(final CompositeComponent component, final StringBuilder buffer) {
-		buffer.append(PcmComponentDiagramGenerator.COMPOSITE_COMPONENT_START);
+		buffer.append(COMPOSITE_COMPONENT_START);
 		buffer.append(component.getEntityName());
-		buffer.append(PcmComponentDiagramGenerator.COMPOSITE_TITLE_SPACER);
-		buffer.append(PcmComponentDiagramGenerator.COMPOSITE_BLOCK_START);
-		buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+		buffer.append(COMPOSITE_TITLE_SPACER);
+		buffer.append(COMPOSITE_BLOCK_START);
+		buffer.append(NEWLINE);
 		component.getAssemblyContexts__ComposedStructure().stream()
 		        .map(AssemblyContext::getEncapsulatedComponent__AssemblyContext)
 		        .filter(BasicComponent.class::isInstance).map(BasicComponent.class::cast).forEach(x -> {
-			        PcmComponentDiagramGenerator.appendComponent(x, buffer);
-			        buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+			        appendComponent(x, buffer);
+			        buffer.append(NEWLINE);
 		        });
 		inPorts.get(component).values().forEach(x -> {
-			buffer.append(PcmComponentDiagramGenerator.INPORT_DECLARATION);
+			buffer.append(INPORT_DECLARATION);
 			buffer.append(x);
-			buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+			buffer.append(NEWLINE);
 		});
 		outPorts.get(component).values().forEach(x -> {
-			buffer.append(PcmComponentDiagramGenerator.OUTPORT_DECLARATION);
+			buffer.append(OUTPORT_DECLARATION);
 			buffer.append(x);
-			buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+			buffer.append(NEWLINE);
 		});
 		component.getConnectors__ComposedStructure().stream().filter(AssemblyConnector.class::isInstance)
-		        .map(AssemblyConnector.class::cast).sorted(UmlDiagramSupplier.byName())
-		        .forEach(x -> PcmComponentDiagramGenerator.appendConnector(x, buffer));
+		        .map(AssemblyConnector.class::cast).sorted(byName()).forEach(x -> appendConnector(x, buffer));
 		component.getConnectors__ComposedStructure().stream().filter(ProvidedDelegationConnector.class::isInstance)
-		        .map(ProvidedDelegationConnector.class::cast).sorted(UmlDiagramSupplier.byName())
+		        .map(ProvidedDelegationConnector.class::cast).sorted(byName())
 		        .forEach(x -> appendDelegation(component, x, buffer));
 		component.getConnectors__ComposedStructure().stream().filter(RequiredDelegationConnector.class::isInstance)
-		        .map(RequiredDelegationConnector.class::cast).sorted(UmlDiagramSupplier.byName())
+		        .map(RequiredDelegationConnector.class::cast).sorted(byName())
 		        .forEach(x -> appendDelegation(component, x, buffer));
-		buffer.append(PcmComponentDiagramGenerator.COMPOSITE_BLOCK_END);
+		buffer.append(COMPOSITE_BLOCK_END);
 	}
 
 	private void appendDelegation(final CompositeComponent parent, final ProvidedDelegationConnector delegation,
@@ -159,13 +157,13 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 		final String portName = inPorts.get(parent).get(delegation.getOuterProvidedRole_ProvidedDelegationConnector());
 
 		// TODO: Currently assumes non-nested components.
-		buffer.append(PcmComponentDiagramGenerator.NAME_START);
+		buffer.append(NAME_START);
 		buffer.append(portName);
-		buffer.append(PcmComponentDiagramGenerator.NAME_END);
-		buffer.append(PcmComponentDiagramGenerator.SIMPLE_LINK);
+		buffer.append(NAME_END);
+		buffer.append(SIMPLE_LINK);
 		PcmComponentDiagramGenerator
 		        .appendComponent((BasicComponent) providingContext.getEncapsulatedComponent__AssemblyContext(), buffer);
-		buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+		buffer.append(NEWLINE);
 	}
 
 	protected void appendDelegation(final CompositeComponent parent, final RequiredDelegationConnector delegation,
@@ -176,29 +174,29 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 		// TODO: Currently assumes non-nested components.
 		PcmComponentDiagramGenerator
 		        .appendComponent((BasicComponent) requiringContext.getEncapsulatedComponent__AssemblyContext(), buffer);
-		buffer.append(PcmComponentDiagramGenerator.INTERNAL_REQUIRES_LINK);
-		buffer.append(PcmComponentDiagramGenerator.NAME_START);
+		buffer.append(INTERNAL_REQUIRES_LINK);
+		buffer.append(NAME_START);
 		buffer.append(portName);
-		buffer.append(PcmComponentDiagramGenerator.NAME_END);
-		buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+		buffer.append(NAME_END);
+		buffer.append(NEWLINE);
 	}
 
 	private String appendIface(final Role role, final StringBuilder buffer) {
 		final String ifaceName = getIFaceByRef(role).getEntityName();
-		final String ifaceIdentifier = "interface." + UmlDiagramSupplier.escape(ifaceName);
+		final String ifaceIdentifier = "interface." + escape(ifaceName);
 		buffer.append("interface ");
-		buffer.append(PcmComponentDiagramGenerator.NAME_START);
+		buffer.append(NAME_START);
 		buffer.append(ifaceName);
-		buffer.append(PcmComponentDiagramGenerator.NAME_END);
+		buffer.append(NAME_END);
 		buffer.append(" as ");
 		buffer.append(ifaceIdentifier);
-		buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+		buffer.append(NEWLINE);
 		return ifaceIdentifier;
 	}
 
 	private void appendProvIfaces(final BasicComponent component, final StringBuilder buffer) {
 		for (final ProvidedRole provRole : providedRoles.get(component)) {
-			final String ifaceName = UmlDiagramSupplier.escape(getIFaceByRef(provRole).getEntityName());
+			final String ifaceName = escape(getIFaceByRef(provRole).getEntityName());
 			// Do not draw implicit interfaces.
 			if (componentNames.contains(ifaceName)) {
 				continue;
@@ -207,9 +205,9 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 			final String ifaceIdentifier = appendIface(provRole, buffer);
 
 			buffer.append(ifaceIdentifier);
-			buffer.append(PcmComponentDiagramGenerator.SIMPLE_LINK);
-			PcmComponentDiagramGenerator.appendComponent(component, buffer);
-			buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+			buffer.append(SIMPLE_LINK);
+			appendComponent(component, buffer);
+			buffer.append(NEWLINE);
 		}
 	}
 
@@ -219,11 +217,11 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 			final String ifaceIdentifier = appendIface(provRole, buffer);
 
 			buffer.append(ifaceIdentifier);
-			buffer.append(PcmComponentDiagramGenerator.SIMPLE_LINK);
-			buffer.append(PcmComponentDiagramGenerator.NAME_START);
+			buffer.append(SIMPLE_LINK);
+			buffer.append(NAME_START);
 			buffer.append(portName);
-			buffer.append(PcmComponentDiagramGenerator.NAME_END);
-			buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+			buffer.append(NAME_END);
+			buffer.append(NEWLINE);
 		}
 	}
 
@@ -231,21 +229,21 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 	private void appendReqIfaces(final BasicComponent component, final StringBuilder buffer) {
 		for (final RequiredRole reqRole : requiredRoles.get(component)) {
 			// Refer directly to the component for implicit interfaces.
-			final String ifaceName = UmlDiagramSupplier.escape(getIFaceByRef(reqRole).getEntityName());
+			final String ifaceName = escape(getIFaceByRef(reqRole).getEntityName());
 			if (componentNames.contains(ifaceName)) {
-				PcmComponentDiagramGenerator.appendComponent(component, buffer);
-				buffer.append(PcmComponentDiagramGenerator.REQUIRES_LINK);
-				buffer.append(PcmComponentDiagramGenerator.COMPONENT_START);
+				appendComponent(component, buffer);
+				buffer.append(REQUIRES_LINK);
+				buffer.append(COMPONENT_START);
 				buffer.append(ifaceName);
-				buffer.append(PcmComponentDiagramGenerator.COMPONENT_END);
+				buffer.append(COMPONENT_END);
 			} else {
 				final String ifaceIdentifier = appendIface(reqRole, buffer);
-				PcmComponentDiagramGenerator.appendComponent(component, buffer);
-				buffer.append(PcmComponentDiagramGenerator.REQUIRES_LINK);
+				appendComponent(component, buffer);
+				buffer.append(REQUIRES_LINK);
 				buffer.append(ifaceIdentifier);
 			}
-			buffer.append(PcmComponentDiagramGenerator.REQUIRES_LABEL);
-			buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+			buffer.append(REQUIRES_LABEL);
+			buffer.append(NEWLINE);
 		}
 	}
 
@@ -255,13 +253,13 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 			final String portName = outPorts.get(component).get(reqRole);
 			final String ifaceIdentifier = appendIface(reqRole, buffer);
 
-			buffer.append(PcmComponentDiagramGenerator.NAME_START);
+			buffer.append(NAME_START);
 			buffer.append(portName);
-			buffer.append(PcmComponentDiagramGenerator.NAME_END);
-			buffer.append(PcmComponentDiagramGenerator.REQUIRES_LINK);
+			buffer.append(NAME_END);
+			buffer.append(REQUIRES_LINK);
 			buffer.append(ifaceIdentifier);
-			buffer.append(PcmComponentDiagramGenerator.REQUIRES_LABEL);
-			buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+			buffer.append(REQUIRES_LABEL);
+			buffer.append(NEWLINE);
 		}
 	}
 
@@ -272,8 +270,8 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 				final String interfaceName = ((OperationProvidedRole) role)
 				        .getProvidedInterface__OperationProvidedRole().getEntityName();
 				final String componentName = component.getEntityName();
-				final String name = componentName + PcmComponentDiagramGenerator.INPORT_DELIMITER + interfaceName;
-				inPortNames.put(role, UmlDiagramSupplier.escape(name));
+				final String name = componentName + INPORT_DELIMITER + interfaceName;
+				inPortNames.put(role, escape(name));
 			}
 		}
 		inPorts.put(component, inPortNames);
@@ -284,8 +282,8 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 				final String interfaceName = ((OperationRequiredRole) role)
 				        .getRequiredInterface__OperationRequiredRole().getEntityName();
 				final String componentName = component.getEntityName();
-				final String name = componentName + PcmComponentDiagramGenerator.OUTPORT_DELIMITER + interfaceName;
-				outPortNames.put(role, UmlDiagramSupplier.escape(name));
+				final String name = componentName + OUTPORT_DELIMITER + interfaceName;
+				outPortNames.put(role, escape(name));
 			}
 		}
 		outPorts.put(component, outPortNames);
@@ -298,9 +296,9 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 				compositeComponents.add(comp);
 				addInnerComponents(comp);
 				providedRoles.put(component, comp.getProvidedRoles_InterfaceProvidingEntity());
-				ECollections.sort(providedRoles.get(component), UmlDiagramSupplier.byName());
+				ECollections.sort(providedRoles.get(component), byName());
 				requiredRoles.put(component, comp.getRequiredRoles_InterfaceRequiringEntity());
-				ECollections.sort(requiredRoles.get(component), UmlDiagramSupplier.byName());
+				ECollections.sort(requiredRoles.get(component), byName());
 				createPorts(comp);
 			}
 		}
@@ -312,24 +310,24 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 			if (component instanceof BasicComponent) {
 				basicComponents.add((BasicComponent) component);
 				providedRoles.put(component, component.getProvidedRoles_InterfaceProvidingEntity());
-				ECollections.sort(providedRoles.get(component), UmlDiagramSupplier.byName());
+				ECollections.sort(providedRoles.get(component), byName());
 				requiredRoles.put(component, component.getRequiredRoles_InterfaceRequiringEntity());
-				ECollections.sort(requiredRoles.get(component), UmlDiagramSupplier.byName());
+				ECollections.sort(requiredRoles.get(component), byName());
 			}
 		}
 
-		compositeComponents.sort(UmlDiagramSupplier.byName());
-		basicComponents.sort(UmlDiagramSupplier.byName());
+		compositeComponents.sort(byName());
+		basicComponents.sort(byName());
 
-		basicComponents.forEach(x -> componentNames.add(UmlDiagramSupplier.escape(x.getEntityName())));
-		compositeComponents.forEach(x -> componentNames.add(UmlDiagramSupplier.escape(x.getEntityName())));
-		innerComponents.forEach(x -> componentNames.add(UmlDiagramSupplier.escape(x.getEntityName())));
+		basicComponents.forEach(x -> componentNames.add(escape(x.getEntityName())));
+		compositeComponents.forEach(x -> componentNames.add(escape(x.getEntityName())));
+		innerComponents.forEach(x -> componentNames.add(escape(x.getEntityName())));
 
 		for (final Interface iface : repository.getInterfaces__Repository()) {
 			ifaces.add((OperationInterface) iface);
 		}
 
-		ifaces.sort(UmlDiagramSupplier.byName());
+		ifaces.sort(byName());
 
 		if (compositeComponents.isEmpty() && basicComponents.isEmpty()) {
 			return null;
@@ -347,7 +345,9 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 		final StringBuilder buffer = new StringBuilder();
 
 		buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
-		buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+		buffer.append(NEWLINE);
+		buffer.append("skinparam componentStyle uml2"); // UML2 Style
+		buffer.append(NEWLINE);
 
 		/*
 		 * Declare composite components before basic components. PlantUML nested
@@ -356,7 +356,7 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 		 */
 		for (final CompositeComponent component : compositeComponents) {
 			appendComponent(component, buffer);
-			buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+			buffer.append(NEWLINE);
 			appendProvIfaces(component, buffer);
 			appendReqIfaces(component, buffer);
 		}
@@ -366,8 +366,8 @@ public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 			final boolean isNotRequiring = requiredRoles.get(component).isEmpty();
 
 			if (isNotProviding && isNotRequiring) {
-				PcmComponentDiagramGenerator.appendComponent(component, buffer);
-				buffer.append(PcmComponentDiagramGenerator.NEWLINE);
+				appendComponent(component, buffer);
+				buffer.append(NEWLINE);
 			} else {
 				appendProvIfaces(component, buffer);
 				appendReqIfaces(component, buffer);
