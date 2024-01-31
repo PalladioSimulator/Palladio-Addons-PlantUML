@@ -30,19 +30,19 @@ import org.palladiosimulator.pcm.repository.Role;
 
 public class PcmComponentDiagramGenerator implements UmlDiagramSupplier {
 
-	private static String COMPONENT_START = "[", COMPONENT_END = "]";
-	private static String COMPOSITE_BLOCK_END = "}";
-	private static String COMPOSITE_BLOCK_START = PcmComponentDiagramGenerator.NAME_END + " {";
-	private static String COMPOSITE_COMPONENT_START = "component " + PcmComponentDiagramGenerator.NAME_START;
-	private static String COMPOSITE_TITLE_SPACER = "\\n\\n\\n\\n\\n\\n";
-	private static String INPORT_DECLARATION = "portin \" \" as ";
-	private static String INPORT_DELIMITER = ".requires.";
-	private static String NAME_START = "\"", NAME_END = "\"";
-	private static String NEWLINE = "\n";
-	private static String OUTPORT_DECLARATION = "portout \" \" as ";
-	private static String OUTPORT_DELIMITER = ".provides.";
-	private static String REQUIRES_LABEL = " : requires";
-	private static String SIMPLE_LINK = "--", REQUIRES_LINK = "..>", INTERNAL_REQUIRES_LINK = "..";
+	private static final String COMPONENT_START = "[", COMPONENT_END = "]";
+	private static final String COMPOSITE_BLOCK_END = "}";
+	private static final String COMPOSITE_BLOCK_START = PcmComponentDiagramGenerator.NAME_END + " {";
+	private static final String COMPOSITE_COMPONENT_START = "component " + PcmComponentDiagramGenerator.NAME_START;
+	private static final String COMPOSITE_TITLE_SPACER = "\\n\\n\\n\\n\\n\\n";
+	private static final String INPORT_DECLARATION = "portin \" \" as ";
+	private static final String INPORT_DELIMITER = ".requires.";
+	private static final String NAME_START = "\"", NAME_END = "\"";
+	private static final String NEWLINE = "\n";
+	private static final String OUTPORT_DECLARATION = "portout \" \" as ";
+	private static final String OUTPORT_DELIMITER = ".provides.";
+	private static final String REQUIRES_LABEL = " : requires";
+	private static final String SIMPLE_LINK = "--", REQUIRES_LINK = "..>", INTERNAL_REQUIRES_LINK = "..";
 
 	private static void appendComponent(final BasicComponent component, final StringBuilder buffer) {
 		buffer.append(PcmComponentDiagramGenerator.COMPONENT_START);

@@ -1,106 +1,149 @@
 package org.palladiosimulator.view.plantuml.generator;
 
+import static org.palladiosimulator.view.plantuml.generator.UmlDiagramSupplier.byName;
+import static org.palladiosimulator.view.plantuml.generator.UmlDiagramSupplier.escape;
+import static org.palladiosimulator.view.plantuml.generator.UmlDiagramSupplier.getEObjectHyperlink;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
-import org.palladiosimulator.pcm.core.composition.AssemblyConnector;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
-import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
+import org.palladiosimulator.pcm.core.composition.impl.AssemblyConnectorImpl;
+import org.palladiosimulator.pcm.core.entity.NamedElement;
+import org.palladiosimulator.pcm.repository.BasicComponent;
+import org.palladiosimulator.pcm.repository.CompositeComponent;
+import org.palladiosimulator.pcm.repository.RepositoryComponent;
+import org.palladiosimulator.pcm.system.System;
 
 public class PcmAllocationDiagramGenerator implements UmlDiagramSupplier {
 
-	private static String COLON = " : ";
-	private static String COMPONENT_START = "[", COMPONENT_END = "]";
-	private static String CONTAINER_KEYWORD = "node";
-	private static String CURLY_OPENING_BRACKET = "{", CURLY_CLOSING_BRACKET = "}";
-	private static String LINK_START = "[[", LINK_END = "]]";
-	private static String NEWLINE = "\n";
-	private static String PROVIDES_REQUIRES_LINK = " -(0- ";
-	private static String SPACE = " ";
+	private static final String COMPONENT_KEYWORD = "component";
+	private static final String COMPONENT_START = "[", COMPONENT_END = "]";
+	private static final String CONTAINER_KEYWORD = "node";
+	private static final String CURLY_OPENING_BRACKET = "{", CURLY_CLOSING_BRACKET = "}";
+	private static final String LINK_START = "[[", LINK_END = "]]";
+	private static final String NEWLINE = "\n";
+	private static final String PROVIDES_REQUIRES_LINK = " - ";
+	private static final String SPACE = " ";
 
-	private static void appendContainerEnd(final StringBuilder buffer) {
-		buffer.append(PcmAllocationDiagramGenerator.CURLY_CLOSING_BRACKET);
-		buffer.append(PcmAllocationDiagramGenerator.NEWLINE);
-	}
-
-	// example: node System1 {
-	private static void appendContainerStart(final ResourceContainer container, final StringBuilder buffer) {
-		buffer.append(PcmAllocationDiagramGenerator.CONTAINER_KEYWORD);
-		buffer.append(PcmAllocationDiagramGenerator.SPACE);
-		buffer.append(UmlDiagramSupplier.escape(container.getEntityName()));
-		buffer.append(PcmAllocationDiagramGenerator.SPACE);
-		buffer.append(PcmAllocationDiagramGenerator.CURLY_OPENING_BRACKET);
-		buffer.append(PcmAllocationDiagramGenerator.NEWLINE);
-	}
-
-	private List<AssemblyConnector> connectors = new ArrayList<>();
-	private final Map<ResourceContainer, List<AllocationContext>> containerToContexts = new HashMap<>();
-	private List<AllocationContext> contexts = new ArrayList<>();
+	private final Map<RepositoryComponent, RepositoryComponent> assembly;
+	private final List<BasicComponent> basicComponents;
+	private final StringBuilder buffer;
+	private final List<CompositeComponent> compositeComponents;
 	private final String diagramText;
-
-	private String linkToSystem;
+	private final String linkToSystem;
 
 	public PcmAllocationDiagramGenerator(final Allocation allocation) {
-		diagramText = getDiagramText(allocation);
+		buffer = new StringBuilder();
+
+		final List<AllocationContext> contexts = allocation.getAllocationContexts_Allocation().stream()
+		        .filter(context -> context != null)
+		        .filter(context -> context.getResourceContainer_AllocationContext() != null)
+		        .filter(context -> context.getAssemblyContext_AllocationContext() != null).toList();
+		contexts.get(0).getAllocation_AllocationContext().getSystem_Allocation()
+		        .getAssemblyContexts__ComposedStructure();
+
+		assembly = new HashMap<>();
+		contexts.stream().map(AllocationContext::getAllocation_AllocationContext).filter(a -> a != null)
+		        .map(Allocation::getSystem_Allocation).filter(s -> s != null).distinct()
+		        .map(System::getConnectors__ComposedStructure).filter(c -> c != null).flatMap(List::stream)
+		        .filter(c -> c != null).distinct().filter(AssemblyConnectorImpl.class::isInstance)
+		        .map(AssemblyConnectorImpl.class::cast).distinct().sorted(byName()).forEachOrdered(c -> {
+			        final AssemblyContext providingAssembly = c.getProvidingAssemblyContext_AssemblyConnector();
+			        final AssemblyContext requiringAssembly = c.getRequiringAssemblyContext_AssemblyConnector();
+			        if ((providingAssembly != null) && (requiringAssembly != null)) {
+				        final RepositoryComponent providingComponent = providingAssembly
+				                .getEncapsulatedComponent__AssemblyContext();
+				        final RepositoryComponent requiringComponent = requiringAssembly
+				                .getEncapsulatedComponent__AssemblyContext();
+				        if ((providingComponent != null) && (requiringComponent != null)) {
+					        assembly.put(providingComponent, requiringComponent);
+				        }
+			        }
+		        });
+
+		assembly.keySet().stream().forEach(k -> java.lang.System.out
+		        .println(escape(k.getEntityName()) + " : " + escape(assembly.get(k).getEntityName())));
+
+		final List<RepositoryComponent> components = contexts.stream()
+		        .map(AllocationContext::getAssemblyContext_AllocationContext)
+		        .map(AssemblyContext::getEncapsulatedComponent__AssemblyContext).toList();
+
+		basicComponents = components.stream().filter(BasicComponent.class::isInstance).map(BasicComponent.class::cast)
+		        .distinct().sorted(byName()).collect(Collectors.toCollection(ArrayList::new));
+
+		compositeComponents = components.stream().filter(CompositeComponent.class::isInstance)
+		        .map(CompositeComponent.class::cast).distinct().sorted(byName()).toList();
+
+		linkToSystem = getEObjectHyperlink(allocation.getSystem_Allocation());
+
+		diagramText = contexts.isEmpty() ? "" : getAllocationDiagramText();
+	}
+
+	// example: [Access Control] - [Web Server]
+	private void appendAssemblyConnector(final Entry<String, String> assembly) {
+		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_START);
+		buffer.append(assembly.getKey());
+		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_END);
+
+		buffer.append(PcmAllocationDiagramGenerator.PROVIDES_REQUIRES_LINK);
+
+		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_START);
+		buffer.append(assembly.getValue());
+		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_END);
+		buffer.append(PcmAllocationDiagramGenerator.NEWLINE);
 	}
 
 	// example: [DataAccess]
-	private void appendAllocationContext(final AllocationContext context, final StringBuilder buffer) {
-		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_START);
-		buffer.append(UmlDiagramSupplier.escape(context.getEntityName()));
-		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_END);
-		buffer.append(PcmAllocationDiagramGenerator.SPACE);
-		buffer.append(PcmAllocationDiagramGenerator.LINK_START);
+	private void appendComponent(final BasicComponent component) {
+		buffer.append(COMPONENT_START);
+		buffer.append(escape(component.getEntityName()));
+		buffer.append(COMPONENT_END);
+		buffer.append(SPACE);
+		buffer.append(LINK_START);
 		buffer.append(linkToSystem);
-		buffer.append(PcmAllocationDiagramGenerator.LINK_END);
-		buffer.append(PcmAllocationDiagramGenerator.NEWLINE);
+		buffer.append(LINK_END);
+		buffer.append(NEWLINE);
 	}
 
-	// example: [Access Control] -(0- [Web Server] : REST
-	private void appendAssemblyConnector(final AssemblyConnector connector, final StringBuilder buffer) {
-		final AssemblyContext reqAssemblyContext = connector.getRequiringAssemblyContext_AssemblyConnector();
-		final AllocationContext reqAllocContext = assemblyToAllocationContext(reqAssemblyContext);
-		final String requiringName = UmlDiagramSupplier.escape(reqAllocContext.getEntityName());
-		if ((reqAssemblyContext == null) || (reqAllocContext == null) || requiringName.isBlank()) {
-			return;
-		}
-
-		final AssemblyContext provAssemblyContext = connector.getProvidingAssemblyContext_AssemblyConnector();
-		final AllocationContext provAllocContext = assemblyToAllocationContext(provAssemblyContext);
-		final String providingName = UmlDiagramSupplier.escape(provAllocContext.getEntityName());
-		final String connectorName = UmlDiagramSupplier
-		        .escape(connector.getProvidedRole_AssemblyConnector().getEntityName());
-		if ((provAssemblyContext == null) || (provAllocContext == null) || providingName.isBlank()
-		        || connectorName.isBlank()) {
-			return;
-		}
-
-		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_START);
-
-		// requiring context
-		buffer.append(requiringName);
-		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_END);
-		buffer.append(PcmAllocationDiagramGenerator.PROVIDES_REQUIRES_LINK);
-		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_START);
-
-		// providing context
-		buffer.append(providingName);
-		buffer.append(PcmAllocationDiagramGenerator.COMPONENT_END);
-		buffer.append(PcmAllocationDiagramGenerator.COLON);
-		buffer.append(connectorName);
-		buffer.append(PcmAllocationDiagramGenerator.NEWLINE);
+	// example: component System1 {
+	private void appendComponentStart(final CompositeComponent component) {
+		buffer.append(COMPONENT_KEYWORD);
+		buffer.append(SPACE);
+		buffer.append(escape(component.getEntityName()));
+		buffer.append(SPACE);
+		buffer.append(CURLY_OPENING_BRACKET);
+		buffer.append(NEWLINE);
 	}
 
-	// helper method
-	private AllocationContext assemblyToAllocationContext(final AssemblyContext assemblyContext) {
-		return contexts.stream().filter(x -> x.getAssemblyContext_AllocationContext().equals(assemblyContext))
-		        .collect(Collectors.toList()).get(0);
+	// example: node System1 {
+	private void appendContainerStart(final String containerName) {
+		buffer.append(CONTAINER_KEYWORD);
+		buffer.append(SPACE);
+		buffer.append(escape(containerName));
+		buffer.append(SPACE);
+		buffer.append(CURLY_OPENING_BRACKET);
+		buffer.append(NEWLINE);
+	}
 
+	private void appendEnd() {
+		buffer.append(CURLY_CLOSING_BRACKET);
+		buffer.append(NEWLINE);
+	}
+
+	private boolean contains(final CompositeComponent composite, final BasicComponent basic) {
+		return composite.getAssemblyContexts__ComposedStructure().stream()
+		        .map(AssemblyContext::getEncapsulatedComponent__AssemblyContext)
+		        .anyMatch(c -> Objects.equals(c, basic));
 	}
 
 	@Override
@@ -109,52 +152,58 @@ public class PcmAllocationDiagramGenerator implements UmlDiagramSupplier {
 	}
 
 	private String getAllocationDiagramText() {
-		final StringBuilder buffer = new StringBuilder();
-
 		buffer.append("skinparam fixCircleLabelOverlapping true"); // avoid overlapping of labels
-		buffer.append(PcmAllocationDiagramGenerator.NEWLINE);
+		buffer.append(NEWLINE);
+		buffer.append("skinparam componentStyle uml2"); // UML2 Style
+		buffer.append(NEWLINE);
 
-		for (final ResourceContainer container : containerToContexts.keySet()) {
-			PcmAllocationDiagramGenerator.appendContainerStart(container, buffer);
-			for (final AllocationContext context : containerToContexts.get(container)) {
-				appendAllocationContext(context, buffer);
+		final Map<RepositoryComponent, String> map = new HashMap<>();
 
+		for (final CompositeComponent composite : compositeComponents) {
+			final String container = getContainerName(composite);
+			appendContainerStart(container);
+			appendComponentStart(composite);
+			final List<BasicComponent> done = new ArrayList<>();
+			for (final BasicComponent basic : basicComponents) {
+				if (contains(composite, basic)) {
+					appendComponent(basic);
+					map.put(basic, container);
+					done.add(basic);
+				}
 			}
-			PcmAllocationDiagramGenerator.appendContainerEnd(buffer);
+			basicComponents.removeAll(done);
+			appendEnd();
+			appendEnd();
 		}
 
-		for (final AssemblyConnector connector : connectors) {
-			appendAssemblyConnector(connector, buffer);
+		for (final BasicComponent component : basicComponents) {
+			final String container = getContainerName(component);
+			appendContainerStart(container);
+			appendComponent(component);
+			map.put(component, container);
+			appendEnd();
 		}
+
+		final Set<Entry<String, String>> set = new HashSet<>();
+
+		for (final RepositoryComponent component : assembly.keySet()) {
+			final String from = map.get(component);
+			final String to = map.get(assembly.get(component));
+			if ((from == null) || (to == null) || from.equals(to)) {
+				continue;
+			}
+			set.add(Map.entry(from, to));
+		}
+
+		set.stream().distinct()
+		        .sorted((o1, o2) -> (o1.getKey() + o1.getValue()).compareTo((o2.getKey() + o2.getValue())))
+		        .forEachOrdered(this::appendAssemblyConnector);
+
 		return buffer.toString();
 	}
 
-	private String getDiagramText(final Allocation allocation) {
-
-		contexts = allocation.getAllocationContexts_Allocation().stream().filter(context -> context != null)
-		        .filter(context -> (context.getEntityName() != null) && !context.getEntityName().isBlank())
-		        .filter(context -> context.getResourceContainer_AllocationContext() != null).distinct()
-		        .sorted(UmlDiagramSupplier.byName()).toList();
-
-		contexts.forEach(context -> {
-			final ResourceContainer container = context.getResourceContainer_AllocationContext();
-			if (containerToContexts.containsKey(container)) {
-				containerToContexts.get(container).add(context);
-			} else {
-				final List<AllocationContext> contextsToMap = new ArrayList<>();
-				contextsToMap.add(context);
-				containerToContexts.put(container, contextsToMap);
-			}
-		});
-
-		connectors = allocation.getSystem_Allocation().getConnectors__ComposedStructure().stream()
-		        .filter(connector -> connector != null).filter(AssemblyConnector.class::isInstance)
-		        .map(AssemblyConnector.class::cast)
-		        .filter(connector -> (connector.getEntityName() != null) && !connector.getEntityName().isBlank())
-		        .distinct().sorted(UmlDiagramSupplier.byName()).toList();
-
-		linkToSystem = UmlDiagramSupplier.getEObjectHyperlink(allocation.getSystem_Allocation());
-
-		return contexts.size() > 0 ? getAllocationDiagramText() : "";
+	private String getContainerName(final NamedElement entity) {
+		return CONTAINER_KEYWORD + escape(entity.getEntityName());
 	}
+
 }

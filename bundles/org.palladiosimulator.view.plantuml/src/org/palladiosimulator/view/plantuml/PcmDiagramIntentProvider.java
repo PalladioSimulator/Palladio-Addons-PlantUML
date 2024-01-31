@@ -16,15 +16,15 @@ import net.sourceforge.plantuml.util.DiagramIntent;
 public class PcmDiagramIntentProvider extends AbstractEcoreDiagramIntentProvider {
 
 	private static boolean isPcmAllocationObject(final Object object) {
-		return object instanceof Allocation;
+		return (object != null) && (object instanceof Allocation);
 	}
 
 	private static boolean isPcmRepositoryObject(final Object object) {
-		return object instanceof Repository;
+		return (object != null) && (object instanceof Repository);
 	}
 
 	private static boolean isPcmSystemObject(final Object object) {
-		return object instanceof System;
+		return (object != null) && (object instanceof System);
 	}
 
 	public PcmDiagramIntentProvider() {
