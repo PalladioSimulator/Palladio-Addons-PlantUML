@@ -1,0 +1,54 @@
+# This workflow enables continuous quality assurance
+name: Continual Improvement Process
+
+on:
+  push: # push on any branch
+  pull_request: # pull request on any branch
+  schedule:
+    - cron: '4 2 * * 0' # once a week, Sundays at 02:04 UTC.
+  workflow_dispatch: # manual trigger
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  verify:
+    name: Maven Verify
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    - name: Set Up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    - name: Run Maven
+      run: mvn -B -U clean verify
+
+  analyze:
+    name: CodeQL Analyze
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    - name: Set Up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: java
+        config-file: ./.github/codeql.yml
+    - name: Autobuild Repository
+      uses: github/codeql-action/autobuild@v3
+    - name: Perform Analyze
+      uses: github/codeql-action/analyze@v3
