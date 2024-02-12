@@ -2,13 +2,13 @@
 <feature
       id="org.palladiosimulator.view.plantuml.feature"
       label="Palladio Bench Plantuml Feature"
-      version="1.0.0"
+      version="5.2.0.qualifier"
       plugin="org.palladiosimulator.branding"
       license-feature="org.palladiosimulator.license"
       license-feature-version="1.0.0">
 
    <license url="">
-      
+
    </license>
 
    <requires>
