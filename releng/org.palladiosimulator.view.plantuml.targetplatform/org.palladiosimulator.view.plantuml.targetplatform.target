@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?>
-<target name="Palladio Bench Plantuml Feature" sequenceNumber="1">
+<?pde version="3.8"?><target name="Palladio Bench Plantuml Feature" sequenceNumber="1">
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" refresh="true">
-            <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="0.0.0" />
-            <unit id="de.uka.ipd.sdq.identifier.feature.source.feature.group" version="0.0.0" />
-            <unit id="org.palladiosimulator.commons.stoex.serialising.feature.feature.group" version="0.0.0" />
-            <unit id="org.palladiosimulator.commons.stoex.serialising.feature.source.feature.group" version="0.0.0" />
-            <repository location="https://updatesite.palladio-simulator.com/palladio-core-commons/nightly/" />
+            <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="0.0.0"/>
+            <unit id="de.uka.ipd.sdq.identifier.feature.source.feature.group" version="0.0.0"/>
+            <unit id="org.palladiosimulator.commons.stoex.serialising.feature.feature.group" version="0.0.0"/>
+            <unit id="org.palladiosimulator.commons.stoex.serialising.feature.source.feature.group" version="0.0.0"/>
+            <repository location="https://updatesite.palladio-simulator.com/palladio-core-commons/nightly/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" refresh="true">
-            <unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0" />
-            <unit id="org.palladiosimulator.pcm.feature.source.feature.group" version="0.0.0" />
-            <repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/nightly/" />
+            <unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0"/>
+            <unit id="org.palladiosimulator.pcm.feature.source.feature.group" version="0.0.0"/>
+            <repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/branches/no_ui-workflow"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit" refresh="true">
-            <repository location="http://hallvard.github.io/plantuml/" />
-            <unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="0.0.0" />
-            <unit id="net.sourceforge.plantuml.ecore.feature.source.feature.group" version="0.0.0" />
+            <repository location="http://hallvard.github.io/plantuml/"/>
+            <unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="0.0.0"/>
+            <unit id="net.sourceforge.plantuml.ecore.feature.source.feature.group" version="0.0.0"/>
         </location>
     </locations>
 </target>
