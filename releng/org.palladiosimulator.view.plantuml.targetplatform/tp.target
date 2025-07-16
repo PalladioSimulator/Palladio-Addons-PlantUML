@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Palladio Bench Plantuml Feature" sequenceNumber="1">
+<?pde version="3.8"?><target name="Palladio Bench Plantuml Feature" sequenceNumber="2">
 	<locations>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" refresh="true">
+		<location type="Target" uri="mvn:org.palladiosimulator:palladio-target-platforms:0.1.0:target:palladio-2023-03"/>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="0.0.0"/>
 			<unit id="de.uka.ipd.sdq.identifier.feature.source.feature.group" version="0.0.0"/>
 			<unit id="org.palladiosimulator.commons.stoex.serialising.feature.feature.group" version="0.0.0"/>
 			<unit id="org.palladiosimulator.commons.stoex.serialising.feature.source.feature.group" version="0.0.0"/>
 			<repository location="https://updatesite.palladio-simulator.com/palladio-core-commons/nightly/"/>
 		</location>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit" refresh="true">
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0"/>
 			<unit id="org.palladiosimulator.pcm.feature.source.feature.group" version="0.0.0"/>
 			<repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/nightly/"/>
 		</location>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit" refresh="true">
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<repository location="http://hallvard.github.io/plantuml/"/>
 			<unit id="net.sourceforge.plantuml.ecore.feature.feature.group" version="0.0.0"/>
 			<unit id="net.sourceforge.plantuml.ecore.feature.source.feature.group" version="0.0.0"/>
