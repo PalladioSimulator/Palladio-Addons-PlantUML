@@ -4,7 +4,7 @@ Bundle-Name: org.palladiosimulator.view.plantuml.test
 Bundle-SymbolicName: org.palladiosimulator.view.plantuml.test;singleton:=true
 Bundle-Version: 6.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.view.plantuml.test
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.junit,
  org.apache.log4j,
  org.eclipse.swt,
